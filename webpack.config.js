@@ -68,4 +68,34 @@ const webExtensionConfig = {
 	},
 };
 
-module.exports = [ webExtensionConfig ];
+/** ---------------- WEBVIEW (REACT) ---------------- */
+const webviewConfig = {
+  mode: 'none',
+  target: 'web', // ⭐ BẮT BUỘC
+  entry: {
+    webview: './src/web/webview/index.tsx'
+  },
+  output: {
+    filename: 'webview.js',
+    path: path.join(__dirname, 'dist/web')
+  },
+  resolve: {
+    extensions: ['.ts', '.tsx', '.js'] // ⭐ thêm tsx
+  },
+  module: {
+    rules: [
+      {
+        test: /\.tsx?$/,               // ⭐ ts + tsx
+        use: 'ts-loader',
+        exclude: /node_modules/
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      }
+    ]
+  }
+};
+
+
+module.exports = [ webExtensionConfig, webviewConfig ];
