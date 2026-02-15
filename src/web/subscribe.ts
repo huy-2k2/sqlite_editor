@@ -1,5 +1,5 @@
 import * as vscode from 'vscode';
-import {createNewPanel} from './utilFuntion'
+import {createNewPanel, getBaseWebviewHtml} from './utilFuntion'
 export function getHelloworldSubcriber(context: vscode.ExtensionContext, ) : vscode.Disposable {
     return vscode.commands.registerCommand('sqliteeditor.helloworld', () => {
         createNewPanel(context, 'sqliteeditor', 'Sqlite Editor')
@@ -7,9 +7,65 @@ export function getHelloworldSubcriber(context: vscode.ExtensionContext, ) : vsc
 }
 
 
-export function getOpenDbfileSubcriber(content: vscode.ExtensionContext): vscode.Disposable {
-    return vscode.workspace.onDidOpenTextDocument(doc => {
-        if (doc.uri.fsPath.endsWith(".db")) {
-        }
+export function getOpenDbfileSubcriber(context: vscode.ExtensionContext): vscode.Disposable {
+    return vscode.window.registerCustomEditorProvider(
+      SQLiteEditorProvider.viewType,
+      new SQLiteEditorProvider(context),
+      {
+        webviewOptions: {
+          retainContextWhenHidden: true,
+        },
+      }
+    )
+}
+
+
+export class SQLiteEditorProvider
+  implements vscode.CustomReadonlyEditorProvider {
+
+  public static readonly viewType = "sqliteeditor";
+
+  constructor(private readonly context: vscode.ExtensionContext) {}
+
+  async openCustomDocument(
+    uri: vscode.Uri
+  ): Promise<vscode.CustomDocument> {
+    return { uri, dispose() {} };
+  }
+
+  async resolveCustomEditor(
+    document: vscode.CustomDocument,
+    webviewPanel: vscode.WebviewPanel
+  ) {
+
+    webviewPanel.webview.options = {
+      enableScripts: true,
+    };
+
+    // Đọc DB (WEB EXTENSION)
+    const fileData = await vscode.workspace.fs.readFile(document.uri);
+
+    const wasmUri = webviewPanel.webview.asWebviewUri(
+      vscode.Uri.joinPath(this.context.extensionUri, "dist", "web", "sql-wasm.wasm")
+    );
+
+    console.log("wasmurl", wasmUri);
+    setTimeout(() => {
+
+        webviewPanel.webview.postMessage({
+            type: "db-loaded",
+            payload: {
+              name: document.uri.path.split("/").pop(),
+              data: Array.from(fileData),
+              wasmUri: wasmUri.toString(),
+            },
+        });
     })
+
+    webviewPanel.webview.html = getBaseWebviewHtml(
+        this.context, 
+        webviewPanel.webview
+    );
+
+  }
 }

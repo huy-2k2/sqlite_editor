@@ -11,7 +11,7 @@
 
 const path = require('path');
 const webpack = require('webpack');
-
+const CopyWebpackPlugin = require("copy-webpack-plugin");
 /** @type WebpackConfig */
 const webExtensionConfig = {
 	mode: 'none', // this leaves the source code as close as possible to the original (when packaging we set this to 'production')
@@ -82,7 +82,15 @@ const webviewConfig = {
   plugins: [
 	new webpack.ProvidePlugin({
 		process: 'process/browser'
-	})
+	}),
+	new CopyWebpackPlugin({
+		patterns: [
+			{
+				from: "node_modules/sql.js/dist/sql-wasm.wasm",
+				to: "sql-wasm.wasm",
+			},
+		],
+  }),
   ],
   resolve: {
     extensions: ['.ts', '.tsx', '.js'] // ⭐ thêm tsx

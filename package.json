@@ -17,17 +17,33 @@
         "command": "sqliteeditor.helloworld",
         "title": "Hello World"
       }
+    ],
+    "customEditors": [
+      {
+        "viewType": "sqliteeditor",
+        "displayName": "sqlite editor",
+        "selector": [
+          {
+            "filenamePattern": "*.db"
+          },
+          {
+            "filenamePattern": "*.sqlite"
+          }
+        ]
+      }
     ]
   },
   "scripts": {
-    "test": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/index.js",
-    "pretest": "npm run compile-web",
-    "vscode:prepublish": "npm run package-web",
-    "compile-web": "webpack",
-    "watch-web": "webpack --watch",
-    "package-web": "webpack --mode production --devtool hidden-source-map",
-    "lint": "eslint src",
-    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. sample_databases"
+    "test": "npm run pre && vscode-test-web --browserType=chromium --extensionDevelopmentPath=. --extensionTestsPath=dist/web/test/suite/index.js",
+    "pretest": "npm run pre && npm run compile-web",
+    "vscode:prepublish": "npm run pre && npm run package-web",
+    "compile-web": "npm run pre && webpack",
+    "watch-web": "npm run pre && webpack --watch",
+    "package-web": "npm run pre && webpack --mode production --devtool hidden-source-map",
+    "lint": "npm run pre && eslint src",
+    "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. sample_databases",
+    "pre": "copy customlibrary\\vscode-test-web\\workbench.html node_modules\\@vscode\\test-web\\views\\workbench.html && copy customlibrary\\vscode-test-web\\workbench-esm.html node_modules\\@vscode\\test-web\\views\\workbench-esm.html"
+
   },
   "devDependencies": {
     "@types/assert": "^1.5.11",
@@ -36,11 +52,12 @@
     "@types/react-dom": "^19.2.3",
     "@types/vscode": "^1.109.0",
     "@types/webpack-env": "^1.18.8",
-    "@vscode/test-web": "^0.0.79",
     "assert": "^2.1.0",
     "css-loader": "^7.1.3",
     "eslint": "^9.39.2",
     "mocha": "^11.7.5",
+    "patch-package": "^8.0.1",
+    "postinstall-postinstall": "^2.1.0",
     "process": "^0.11.10",
     "style-loader": "^4.0.0",
     "ts-loader": "^9.5.4",
@@ -50,6 +67,8 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
+    "@vscode/test-web": "0.0.79",
+    "copy-webpack-plugin": "^13.0.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "sql.js": "^1.14.0"
