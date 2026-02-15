@@ -79,6 +79,11 @@ const webviewConfig = {
     filename: 'webview.js',
     path: path.join(__dirname, 'dist/web')
   },
+  plugins: [
+	new webpack.ProvidePlugin({
+		process: 'process/browser'
+	})
+  ],
   resolve: {
     extensions: ['.ts', '.tsx', '.js'] // ⭐ thêm tsx
   },
