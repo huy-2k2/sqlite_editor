@@ -1,16 +1,64 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 export function activate(context: vscode.ExtensionContext) {
-	const disposable = vscode.commands.registerCommand('sqliteeditor.helloWorld', () => {
-		vscode.window.showInformationMessage('Hello World from sqliteeditor in a web extension host!');
-	});
+  context.subscriptions.push(
+    vscode.commands.registerCommand('sqliteeditor.helloworld', () => {
+      const panel = vscode.window.createWebviewPanel(
+        'sqliteeditor',
+        'SQLite editor',
+        vscode.ViewColumn.One,
+        {
+          enableScripts: true,
 
-	context.subscriptions.push(disposable);
+          // ⭐ BẮT BUỘC: cho phép webview đọc file trong dist
+          localResourceRoots: [
+            vscode.Uri.joinPath(context.extensionUri, 'dist')
+          ]
+        }
+      );
+
+      // 👉 convert file path → webview uri
+      const webviewJsUri = panel.webview.asWebviewUri(
+        vscode.Uri.joinPath(
+          context.extensionUri,
+          'dist',
+		  'web',
+          'webview.js'  
+        )
+      );
+
+      panel.webview.html = getWebviewHtml(webviewJsUri);
+    })
+  );
 }
 
-// This method is called when your extension is deactivated
-export function deactivate() {}
+function getWebviewHtml(webviewJsUri: vscode.Uri): string {
+  return /* html */ `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+
+  <!-- CSP tối thiểu để chạy JS -->
+  <meta
+    http-equiv="Content-Security-Policy"
+    content="
+      default-src 'none';
+      script-src ${webviewJsUri};
+      style-src 'unsafe-inline';
+    "
+  />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SQLite Viewer</title>
+</head>
+
+<body>
+  <div id="root"></div>
+
+  <!-- ⭐ React bundle -->
+  <script src="${webviewJsUri}"></script>
+</body>
+</html>
+`;
+}

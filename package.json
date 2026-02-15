@@ -14,7 +14,7 @@
   "contributes": {
     "commands": [
       {
-        "command": "sqliteeditor.helloWorld",
+        "command": "sqliteeditor.helloworld",
         "title": "Hello World"
       }
     ]
