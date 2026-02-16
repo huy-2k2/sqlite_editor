@@ -1,5 +1,6 @@
 import initSqlJs from 'sql.js';
 import { TableInfo } from "../webcore/types/TableInfo";
+import { TableColumn, TableColumnInfo } from './types/TableColumn';
 
 
 export class SqliteUtil {
@@ -23,6 +24,23 @@ export class SqliteUtil {
     SqliteUtil.Sql = null;
   }
 
+
+  static getTableSchema(tableName: string): TableColumn[] {
+    const res = SqliteUtil.queryDatabase(`PRAGMA table_info(${tableName});`);
+
+    if (res.length === 0) return [];
+
+    const rows = res[0].values as TableColumnInfo[];
+
+    return rows.map((row: TableColumnInfo) => ({
+      cid: row[0],
+      name: row[1],
+      type: row[2],
+      notNull: row[3] === 1,
+      defaultValue: row[4],
+      primaryKey: row[5] === 1,
+    }));
+  }
 
   static getDatabaseNames(): TableInfo[] {
     let query = `

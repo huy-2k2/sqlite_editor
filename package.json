@@ -60,10 +60,14 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.1",
+    "@mui/material": "^7.3.8",
     "@vscode/test-web": "0.0.79",
     "copy-webpack-plugin": "^13.0.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-grid-layout": "^2.2.2",
     "react-pro-sidebar": "^1.1.0",
     "react-spinners": "^0.17.0",
     "sql.js": "^1.14.0"
