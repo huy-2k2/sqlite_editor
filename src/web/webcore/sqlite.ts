@@ -1,18 +1,55 @@
 import initSqlJs from 'sql.js';
+import { TableInfo } from "../webcore/types/TableInfo";
 
-let SQL: any;
-let db: any;
+let Sql: any
 
-export async function openDb(buffer: Uint8Array) {
-  if (!SQL) {
-    SQL = await initSqlJs({
-      locateFile: f => f
-    });
+export class SqliteUtil {
+  Database: any
+  private constructor(bytes: Uint8Array<any>) {
+    this.Database = new Sql.Database(bytes);
   }
-  db = new SQL.Database(buffer);
-}
 
-export function query(sql: string) {
-  if (!db) return [];
-  return db.exec(sql);
+
+  static async create(locatefile: any, bytes: Uint8Array<any>): Promise<SqliteUtil> {
+    if(!Sql) {
+      Sql =  await initSqlJs({
+        locateFile: () => locatefile!,
+      })
+    }
+
+
+    let sqlUtil = new SqliteUtil(bytes)
+
+    return sqlUtil;
+  }
+
+
+  getDatabaseNames(): TableInfo[] {
+    let query = `
+        SELECT name
+        FROM sqlite_master
+        WHERE type='table'
+          AND name NOT LIKE 'sqlite_%'
+        ORDER BY name;
+      `
+      let result = this.queryDatabase(query);
+
+
+      if (result.length > 0) {
+        const rows = result[0].values as string[][];
+        return rows.map((r) => ({ name: r[0] }))
+      } else {
+        return []
+      }
+
+
+  }
+
+  queryDatabase(sql: string): any {
+    if (!this.Database) return [];
+    return this.Database.exec(sql);
+  }
+
+
+  
 }

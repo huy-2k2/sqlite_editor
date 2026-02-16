@@ -2,9 +2,8 @@ import React from "react";
 import { useEffect, useState } from "react";
 import initSqlJs from "sql.js";
 
-type TableInfo = {
-  name: string;
-};
+import { SqliteUtil } from "../webcore/sqlite";
+import { TableInfo } from "../webcore/types/TableInfo";
 
 export default function App() {
   const [tables, setTables] = useState<TableInfo[]>([]);
@@ -23,28 +22,10 @@ export default function App() {
 
       let wasmUri = event.data.payload.wasmUri;
 
-      const SQL = await initSqlJs({
-        locateFile: () => wasmUri!,
-      });
+      let sqliteUtil = await SqliteUtil.create(wasmUri, bytes);
 
-      // 3️⃣ load db
-      const database = new SQL.Database(bytes);
-
-      // 4️⃣ query tables
-      const result = database.exec(`
-        SELECT name
-        FROM sqlite_master
-        WHERE type='table'
-          AND name NOT LIKE 'sqlite_%'
-        ORDER BY name;
-      `);
-
-      if (result.length > 0) {
-        const rows = result[0].values as string[][];
-        setTables(rows.map((r) => ({ name: r[0] })));
-      } else {
-        setTables([]);
-      }
+      let tables = sqliteUtil.getDatabaseNames();
+      setTables(tables);
     };
 
     window.addEventListener("message", handler);
