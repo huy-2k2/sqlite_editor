@@ -1,30 +1,30 @@
 import initSqlJs from 'sql.js';
 import { TableInfo } from "../webcore/types/TableInfo";
 
-let Sql: any
 
 export class SqliteUtil {
-  Database: any
-  private constructor(bytes: Uint8Array<any>) {
-    this.Database = new Sql.Database(bytes);
-  }
+  private static Sql: any
+  private static Database: any
 
+  static async create(locatefile: any, bytes: Uint8Array<any>): Promise<void> {
 
-  static async create(locatefile: any, bytes: Uint8Array<any>): Promise<SqliteUtil> {
-    if(!Sql) {
-      Sql =  await initSqlJs({
+    if(!SqliteUtil.Sql) {
+      SqliteUtil.Sql =  await initSqlJs({
         locateFile: () => locatefile!,
       })
+
+
     }
+    SqliteUtil.Database =  new SqliteUtil.Sql.Database(bytes);
+  }
 
-
-    let sqlUtil = new SqliteUtil(bytes)
-
-    return sqlUtil;
+  static disposeObject(): void {
+    SqliteUtil.Database = null;
+    SqliteUtil.Sql = null;
   }
 
 
-  getDatabaseNames(): TableInfo[] {
+  static getDatabaseNames(): TableInfo[] {
     let query = `
         SELECT name
         FROM sqlite_master
@@ -32,7 +32,7 @@ export class SqliteUtil {
           AND name NOT LIKE 'sqlite_%'
         ORDER BY name;
       `
-      let result = this.queryDatabase(query);
+      let result = SqliteUtil.queryDatabase(query);
 
 
       if (result.length > 0) {
@@ -45,9 +45,10 @@ export class SqliteUtil {
 
   }
 
-  queryDatabase(sql: string): any {
-    if (!this.Database) return [];
-    return this.Database.exec(sql);
+  static queryDatabase(sql: string): any {
+
+    if (!SqliteUtil.Database) return [];
+    return SqliteUtil.Database.exec(sql);
   }
 
 

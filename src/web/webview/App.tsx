@@ -6,6 +6,7 @@ import { TableInfo } from "../webcore/types/TableInfo";
 import FullScreenLoading from "./components/FullScreenLoading";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
+import RightPage from "./components/RightPage";
 import "./styles/main.css";
 export default function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
@@ -19,6 +20,8 @@ export default function App() {
     const handler = async (event: MessageEvent) => {
       if (event.data?.type !== "db-loaded") return;
 
+      SqliteUtil.disposeObject();
+
       const { data, name } = event.data.payload;
       setDbName(name);
 
@@ -28,11 +31,9 @@ export default function App() {
 
       let wasmUri = event.data.payload.wasmUri;
 
-      let sqliteUtil = await SqliteUtil.create(wasmUri, bytes);
+      await SqliteUtil.create(wasmUri, bytes);
 
-      setTables(sqliteUtil.getDatabaseNames());
-
-      console.log("tables length", tables.length);
+      setTables(SqliteUtil.getDatabaseNames());
 
       setIsLoading(false);
     };
@@ -55,7 +56,7 @@ export default function App() {
           <div className="header">
             <Header databaseName={dbName}></Header>
           </div>
-          <div>
+          <div style={styles.container}>
             <div>
               <Sidebar
                 tables={tables.map((i) => i.name)}
@@ -63,9 +64,18 @@ export default function App() {
                 onTableSelect={handleTableSelect}
               ></Sidebar>
             </div>
+            <div>
+              <RightPage activeTable={activeTable}></RightPage>
+            </div>
           </div>
         </div>
       )}
     </div>
   );
 }
+
+const styles: { [k: string]: React.CSSProperties } = {
+  container: {
+    display: "flex",
+  },
+};
