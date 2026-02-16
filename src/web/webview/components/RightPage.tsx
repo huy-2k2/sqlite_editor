@@ -1,15 +1,63 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import TopNav from "./TopNav";
 import TableSchema from "./TableSchema";
+import TableDataManager, { Table } from "./TableDataManager";
 
 let TOPNAV_ITEMS = ["schema", "data"];
 
 interface RightPageProps {
   activeTable: string | undefined;
+  onTableSelect: (name: string) => void;
 }
 
-const RightPage: React.FC<RightPageProps> = ({ activeTable }) => {
-  const [activeTopnavItem, setActiveTopnavItem] = useState(TOPNAV_ITEMS[0]);
+const RightPage: React.FC<RightPageProps> = ({
+  activeTable,
+  onTableSelect,
+}) => {
+  const [activeTopnavItem, setActiveTopnavItem] = useState<string>(
+    TOPNAV_ITEMS[0],
+  );
+
+  const [listTableSelected, setListTableSelected] = useState<Array<Table>>([]);
+
+  const [tableSelected, setTableSelected] = useState<string>();
+
+  useEffect(() => {
+    if (!activeTable) return;
+
+    setTableSelected(activeTable);
+
+    if (!listTableSelected) return;
+    const isTableAlreadyInList =
+      listTableSelected.findIndex((tb) => tb.tableName == activeTable) != -1;
+
+    if (isTableAlreadyInList || activeTopnavItem != "data") return;
+    setListTableSelected((listTable) => {
+      return [
+        ...listTable,
+        {
+          tableName: activeTable,
+          tableQuery: "",
+        },
+      ];
+    });
+  }, [activeTable, activeTopnavItem]);
+
+  const renderByType = () => {
+    switch (activeTopnavItem) {
+      case "schema":
+        return <TableSchema activeTable={activeTable}></TableSchema>;
+      case "data":
+        return (
+          <TableDataManager
+            listTable={listTableSelected}
+            tableSelected={tableSelected}
+            onTableSelect={onTableSelect}
+            setListTableSelected={setListTableSelected}
+          ></TableDataManager>
+        );
+    }
+  };
 
   return (
     <div style={styles.container}>
@@ -18,13 +66,7 @@ const RightPage: React.FC<RightPageProps> = ({ activeTable }) => {
         activeItem={activeTopnavItem}
         onItemSelect={setActiveTopnavItem}
       ></TopNav>
-      <div>
-        {activeTopnavItem == "schema" ? (
-          <TableSchema activeTable={activeTable}></TableSchema>
-        ) : (
-          <div></div>
-        )}
-      </div>
+      <div>{renderByType()}</div>
     </div>
   );
 };

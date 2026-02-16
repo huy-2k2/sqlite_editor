@@ -65,7 +65,10 @@ export default function App() {
               ></Sidebar>
             </div>
             <div>
-              <RightPage activeTable={activeTable}></RightPage>
+              <RightPage
+                activeTable={activeTable}
+                onTableSelect={handleTableSelect}
+              ></RightPage>
             </div>
           </div>
         </div>

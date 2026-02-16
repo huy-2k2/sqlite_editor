@@ -38,7 +38,6 @@ const TableSchema: React.FC<TableSchemaProps> = ({ activeTable }) => {
     if (activeTable) {
       const columns = SqliteUtil.getTableSchema(activeTable);
       setTableColumns(columns);
-      console.log(columns);
     }
   }, [activeTable]);
 
@@ -54,7 +53,7 @@ const TableSchema: React.FC<TableSchemaProps> = ({ activeTable }) => {
               <StyledTableCell align="center">Name</StyledTableCell>
               <StyledTableCell align="center">Data type</StyledTableCell>
               <StyledTableCell align="center">Not null</StyledTableCell>
-              <StyledTableCell align="center">Defaut value</StyledTableCell>
+              <StyledTableCell align="center">Default value</StyledTableCell>
               <StyledTableCell align="center">Primary key</StyledTableCell>
             </TableRow>
           </TableHead>
