@@ -15,3 +15,31 @@ button {
   padding: 6px 12px;
   cursor: pointer;
 }
+
+/* Custom Scrollbar cho toàn bộ Sidebar */
+.sidebar-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: #2d3748 #232323; /* thumb track */
+}
+
+/* Chrome, Edge, Safari */
+.sidebar-scroll::-webkit-scrollbar {
+  height: 10px;
+  width: 8px;
+  background: #232323;
+  border-radius: 8px;
+}
+
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background: #404957;
+  border-radius: 8px;
+  transition: background 0.2s;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb:hover {
+  background: #5a6680;
+}
+
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: #232323;
+  border-radius: 8px;
+}
