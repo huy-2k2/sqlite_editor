@@ -1,12 +1,13 @@
 import React from "react";
 import { useEffect, useState } from "react";
-import initSqlJs from "sql.js";
 
 import { SqliteUtil } from "../webcore/sqlite";
 import { TableInfo } from "../webcore/types/TableInfo";
+import FullScreenLoading from "./components/FullScreenLoading";
+import Header from "./components/Header";
 
 export default function App() {
-  const [tables, setTables] = useState<TableInfo[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [dbName, setDbName] = useState<string>("");
 
   useEffect(() => {
@@ -24,8 +25,7 @@ export default function App() {
 
       let sqliteUtil = await SqliteUtil.create(wasmUri, bytes);
 
-      let tables = sqliteUtil.getDatabaseNames();
-      setTables(tables);
+      setIsLoading(false);
     };
 
     window.addEventListener("message", handler);
@@ -33,21 +33,15 @@ export default function App() {
   }, []);
 
   return (
-    <div style={{ padding: 16, fontFamily: "sans-serif" }}>
-      <h2>SQLite Viewer</h2>
-      <p>
-        <b>DB:</b> {dbName}
-      </p>
-
-      <h3>Tables</h3>
-
-      {tables.length === 0 && <p>(No tables)</p>}
-
-      <ul>
-        {tables.map((t) => (
-          <li key={t.name}>{t.name}</li>
-        ))}
-      </ul>
+    <div>
+      <FullScreenLoading isLoading={isLoading} />
+      {!isLoading && (
+        <div>
+          <div className="header">
+            <Header databaseName={dbName}></Header>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

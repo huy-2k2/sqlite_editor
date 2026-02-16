@@ -12,12 +12,6 @@
   "activationEvents": [],
   "browser": "./dist/web/extension.js",
   "contributes": {
-    "commands": [
-      {
-        "command": "sqliteeditor.helloworld",
-        "title": "Hello World"
-      }
-    ],
     "customEditors": [
       {
         "viewType": "sqliteeditor",
@@ -43,7 +37,6 @@
     "lint": "npm run pre && eslint src",
     "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. sample_databases",
     "pre": "copy customlibrary\\vscode-test-web\\workbench.html node_modules\\@vscode\\test-web\\views\\workbench.html && copy customlibrary\\vscode-test-web\\workbench-esm.html node_modules\\@vscode\\test-web\\views\\workbench-esm.html"
-
   },
   "devDependencies": {
     "@types/assert": "^1.5.11",
@@ -71,6 +64,7 @@
     "copy-webpack-plugin": "^13.0.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
+    "react-spinners": "^0.17.0",
     "sql.js": "^1.14.0"
   }
 }
