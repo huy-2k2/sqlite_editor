@@ -5,6 +5,10 @@ import TableDataManager, { Table } from "./TableDataManager";
 
 let TOPNAV_ITEMS = ["schema", "data"];
 
+function getPagingSize(): number {
+  return 20;
+}
+
 interface RightPageProps {
   activeTable: string | undefined;
   onTableSelect: (name: string) => void;
@@ -38,6 +42,9 @@ const RightPage: React.FC<RightPageProps> = ({
         {
           tableName: activeTable,
           tableQuery: "",
+          paginationModel: undefined,
+          sortModel: undefined,
+          filterModel: undefined,
         },
       ];
     });

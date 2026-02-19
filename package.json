@@ -39,6 +39,7 @@
     "pre": "copy customlibrary\\vscode-test-web\\workbench.html node_modules\\@vscode\\test-web\\views\\workbench.html && copy customlibrary\\vscode-test-web\\workbench-esm.html node_modules\\@vscode\\test-web\\views\\workbench-esm.html"
   },
   "devDependencies": {
+    "@mui/x-data-grid-generator": "^8.27.1",
     "@types/assert": "^1.5.11",
     "@types/mocha": "^10.0.10",
     "@types/react": "^19.2.14",
@@ -63,6 +64,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/material": "^7.3.8",
+    "@mui/x-data-grid": "^8.27.1",
     "@vscode/test-web": "0.0.79",
     "copy-webpack-plugin": "^13.0.1",
     "react": "^19.2.4",

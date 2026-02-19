@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
-import { Hover } from "vscode";
+import FullFeaturedCrudGrid from "./FullFeaturedCrudGrid";
+import {
+  GridPaginationModel,
+  GridFilterModel,
+  GridSortModel,
+} from "@mui/x-data-grid";
 
 export interface Table {
   tableName: string;
   tableQuery: string;
+  paginationModel: GridPaginationModel | undefined;
+  filterModel: GridFilterModel | undefined;
+  sortModel: GridSortModel | undefined;
 }
 
 interface TableSchemaProps {
@@ -59,6 +67,9 @@ const TableDataManager: React.FC<TableSchemaProps> = ({
             </div>
           </div>
         ))}
+      </div>
+      <div>
+        <FullFeaturedCrudGrid></FullFeaturedCrudGrid>
       </div>
     </div>
   );

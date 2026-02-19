@@ -70,3 +70,4 @@ export function getBaseWebviewHtml(context: vscode.ExtensionContext,  webview: v
         </html>
     `;
 }
+
