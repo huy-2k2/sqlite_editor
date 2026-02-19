@@ -37,16 +37,19 @@ const RightPage: React.FC<RightPageProps> = ({
 
     if (isTableAlreadyInList || activeTopnavItem != "data") return;
     setListTableSelected((listTable) => {
-      return [
-        ...listTable,
-        {
-          tableName: activeTable,
-          tableQuery: "",
-          paginationModel: undefined,
-          sortModel: undefined,
-          filterModel: undefined,
+      const newtb: Table = {
+        tableName: activeTable,
+        tableQuery: "",
+        paginationModel: {
+          pageSize: 100,
+          page: 0,
         },
-      ];
+        sortModel: undefined,
+        filterModel: undefined,
+      };
+
+      const tbs = [...listTable, newtb];
+      return tbs;
     });
   }, [activeTable, activeTopnavItem]);
 

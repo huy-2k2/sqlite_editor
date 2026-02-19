@@ -14,16 +14,11 @@ import {
   GridRowId,
   GridRowModel,
   GridRowEditStopReasons,
-  gridEditRowsStateSelector,
-  useGridSelector,
-  useGridApiContext,
-  GridActionsCell,
-  GridRenderCellParams,
-  GridActionsCellItem,
   GridFilterModel,
   GridSortModel,
   GridColType,
   GridValidRowModel,
+  GridPaginationModel,
 } from "@mui/x-data-grid";
 import {
   randomCreatedDate,
@@ -66,53 +61,24 @@ const ActionHandlersContext = React.createContext<ActionHandlers>({
   handleSaveClick: () => {},
 });
 
-function ActionsCell(props: GridRenderCellParams) {
-  const apiRef = useGridApiContext();
-  const rowModesModel = useGridSelector(apiRef, gridEditRowsStateSelector);
-  const isInEditMode = typeof rowModesModel[props.id] !== "undefined";
-
-  const { handleSaveClick, handleCancelClick, handleEditClick } =
-    React.useContext(ActionHandlersContext);
-
-  return (
-    <GridActionsCell {...props}>
-      {isInEditMode ? (
-        <React.Fragment>
-          <GridActionsCellItem
-            icon={<SaveIcon />}
-            label="Save"
-            material={{ sx: { color: "primary.main" } }}
-            onClick={() => handleSaveClick(props.id)}
-          />
-          <GridActionsCellItem
-            icon={<CancelIcon />}
-            label="Cancel"
-            className="textPrimary"
-            onClick={() => handleCancelClick(props.id)}
-            color="inherit"
-          />
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          <GridActionsCellItem
-            icon={<EditIcon />}
-            label="Edit"
-            className="textPrimary"
-            onClick={() => handleEditClick(props.id)}
-            color="inherit"
-          />
-        </React.Fragment>
-      )}
-    </GridActionsCell>
-  );
-}
-
 const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
   listTable,
   tableSelected,
   setListTableSelected,
 }) => {
   const [columns, setColumns] = React.useState<GridColDef[]>([]);
+
+  const [sortModel, setSortModel] = React.useState<GridSortModel | undefined>(
+    undefined,
+  );
+
+  const [paginationModel, setPaginationModel] = React.useState<
+    GridPaginationModel | undefined
+  >(undefined);
+
+  const [filterModel, setFilterModel] = React.useState<
+    GridFilterModel | undefined
+  >(undefined);
 
   React.useEffect(() => {
     if (!tableSelected || !listTable?.length) return;
@@ -127,12 +93,11 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
         headerName: c.name,
         type: mapSqliteTypeToMuiType(c.type),
         editable: isSqliteTypeEditable(c.type),
+        width: calcItemWidth(colsRaw.length),
       });
     });
 
     const rowsRaw = SqliteUtil.getFullRows(tableSelected);
-
-    console.log(rowsRaw);
 
     if (rowsRaw?.values?.length) {
       const rowsConvert: GridValidRowModel[] = rowsRaw.values.map((row) => {
@@ -157,6 +122,23 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
       });
 
       setRows(rowsConvert);
+
+      listTable.forEach((t, i) => {
+        if (t.tableName != tableSelected) return;
+
+        if (t.filterModel) {
+          setFilterModel(t.filterModel);
+        }
+        if (t.paginationModel) {
+          setTimeout(() => {
+            setPaginationModel(t.paginationModel);
+          });
+        }
+
+        if (t.sortModel) {
+          setSortModel(t.sortModel);
+        }
+      });
     }
 
     setColumns(cols);
@@ -214,6 +196,38 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
     return updatedRow;
   };
 
+  const onFilterModelChange = function (model: GridFilterModel): void {
+    setFilterModel(model);
+    if (!tableSelected || !listTable?.length) return;
+
+    listTable.forEach((t, i) => {
+      if (t.tableName != tableSelected) return;
+
+      t.filterModel = model;
+    });
+  };
+
+  const onPaginationModelChange = function (model: GridPaginationModel): void {
+    setPaginationModel(model);
+    if (!tableSelected || !listTable?.length) return;
+
+    listTable.forEach((t, i) => {
+      if (t.tableName != tableSelected) return;
+      t.paginationModel = model;
+    });
+  };
+
+  const onSortModelChange = function (model: GridSortModel): void {
+    setSortModel(model);
+    if (!tableSelected || !listTable?.length) return;
+
+    listTable.forEach((t, i) => {
+      if (t.tableName != tableSelected) return;
+
+      t.sortModel = model;
+    });
+  };
+
   return (
     <Box
       sx={{
@@ -236,6 +250,12 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
           onRowModesModelChange={setRowModesModel}
           onRowEditStop={handleRowEditStop}
           processRowUpdate={processRowUpdate}
+          filterModel={filterModel}
+          paginationModel={paginationModel}
+          sortModel={sortModel}
+          onFilterModelChange={onFilterModelChange}
+          onSortModelChange={onSortModelChange}
+          onPaginationModelChange={onPaginationModelChange}
           slotProps={{
             toolbar: { setRows, setRowModesModel },
           }}

@@ -52,6 +52,7 @@ const TableDataManager: React.FC<TableDataManagerProps> = ({
       <div style={styles.tablelist}>
         {listTable?.map((t) => (
           <div
+            key={t.tableName}
             onClick={() => handleTableItemClick(t)}
             style={{
               ...styles.tableItem,
@@ -70,6 +71,7 @@ const TableDataManager: React.FC<TableDataManagerProps> = ({
       </div>
       <div>
         <FullFeaturedCrudGrid
+          key={tableSelected}
           tableSelected={tableSelected}
           listTable={listTable}
           setListTableSelected={setListTableSelected}
