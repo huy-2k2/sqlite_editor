@@ -1,6 +1,7 @@
 import initSqlJs from 'sql.js';
 import { TableInfo } from "../webcore/types/TableInfo";
 import { TableColumn, TableColumnInfo } from './types/TableColumn';
+import {TableRaws} from './types/TableRaws'
 
 
 export class SqliteUtil {
@@ -63,12 +64,25 @@ export class SqliteUtil {
 
   }
 
-  static queryDatabase(sql: string): any {
+  static getFullRows(tableName: string): TableRaws {
+    let query = `
+      select * from ${tableName};
+    `
+    let result: TableRaws[] = SqliteUtil.queryDatabase(query);
+    
+    if(result?.length) {
+      return result[0]
+    }
+
+    return {
+      values: [],
+      lc: []
+    }
+  }
+
+  private static queryDatabase(sql: string): any {
 
     if (!SqliteUtil.Database) return [];
     return SqliteUtil.Database.exec(sql);
   }
-
-
-  
 }

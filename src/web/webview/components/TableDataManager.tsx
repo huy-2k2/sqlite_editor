@@ -14,14 +14,14 @@ export interface Table {
   sortModel: GridSortModel | undefined;
 }
 
-interface TableSchemaProps {
+interface TableDataManagerProps {
   listTable: Array<Table> | undefined;
   tableSelected: string | undefined;
   onTableSelect: (name: string) => void;
   setListTableSelected(tables: Array<Table>): void;
 }
 
-const TableDataManager: React.FC<TableSchemaProps> = ({
+const TableDataManager: React.FC<TableDataManagerProps> = ({
   listTable,
   tableSelected,
   onTableSelect,
@@ -69,7 +69,11 @@ const TableDataManager: React.FC<TableSchemaProps> = ({
         ))}
       </div>
       <div>
-        <FullFeaturedCrudGrid></FullFeaturedCrudGrid>
+        <FullFeaturedCrudGrid
+          tableSelected={tableSelected}
+          listTable={listTable}
+          setListTableSelected={setListTableSelected}
+        ></FullFeaturedCrudGrid>
       </div>
     </div>
   );

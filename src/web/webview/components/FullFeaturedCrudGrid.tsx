@@ -1,4 +1,5 @@
 import * as React from "react";
+import { Table } from "./TableDataManager";
 import Box from "@mui/material/Box";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
@@ -21,6 +22,8 @@ import {
   GridActionsCellItem,
   GridFilterModel,
   GridSortModel,
+  GridColType,
+  GridValidRowModel,
 } from "@mui/x-data-grid";
 import {
   randomCreatedDate,
@@ -28,30 +31,19 @@ import {
   randomId,
   randomArrayItem,
 } from "@mui/x-data-grid-generator";
+import { SqliteUtil } from "../../webcore/sqlite";
+import {} from "../../utilFuntion";
 
 const roles = ["Market", "Finance", "Development"];
 const randomRole = () => {
   return randomArrayItem(roles);
 };
 
-const initialRows: GridRowsProp = [
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    age: 26,
-    joinDate: randomCreatedDate(),
-    role: randomRole(),
-    bio: "Creative designer focused on user experience and interface design.",
-  },
-  {
-    id: randomId(),
-    name: randomTraderName(),
-    age: 27,
-    joinDate: randomCreatedDate(),
-    role: randomRole(),
-    bio: "Creative designer focused on user experience and interface design.",
-  },
-];
+interface FullFeaturedCrudGridProps {
+  listTable: Array<Table> | undefined;
+  tableSelected: string | undefined;
+  setListTableSelected(tables: Array<Table>): void;
+}
 
 declare module "@mui/x-data-grid" {
   interface ToolbarPropsOverrides {
@@ -115,60 +107,62 @@ function ActionsCell(props: GridRenderCellParams) {
   );
 }
 
-const columns: GridColDef[] = [
-  {
-    field: "name",
-    headerName: "Name",
-    width: 180,
-    editable: true,
-  },
-  {
-    field: "bio",
-    headerName: "Bio",
-    type: "longText",
-    width: 200,
-    editable: true,
-    sortable: false,
-  },
-  {
-    field: "age",
-    headerName: "Age",
-    type: "number",
-    width: 80,
-    align: "left",
-    headerAlign: "left",
-    editable: true,
-    sortable: false,
-  },
-  {
-    field: "joinDate",
-    headerName: "Join date",
-    type: "date",
-    width: 180,
-    editable: true,
-    sortable: false,
-  },
-  {
-    field: "role",
-    headerName: "Department",
-    width: 220,
-    editable: true,
-    type: "singleSelect",
-    valueOptions: ["Market", "Finance", "Development"],
-    sortable: false,
-  },
-  {
-    field: "actions",
-    type: "actions",
-    headerName: "Actions",
-    width: 100,
-    cellClassName: "actions",
-    renderCell: (params) => <ActionsCell {...params} />,
-  },
-];
+const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
+  listTable,
+  tableSelected,
+  setListTableSelected,
+}) => {
+  const [columns, setColumns] = React.useState<GridColDef[]>([]);
 
-export default function FullFeaturedCrudGrid() {
-  const [rows, setRows] = React.useState(initialRows);
+  React.useEffect(() => {
+    if (!tableSelected || !listTable?.length) return;
+
+    const colsRaw = SqliteUtil.getTableSchema(tableSelected);
+
+    const cols: GridColDef[] = [];
+
+    colsRaw.forEach((c) => {
+      cols.push({
+        field: c.name,
+        headerName: c.name,
+        type: mapSqliteTypeToMuiType(c.type),
+        editable: isSqliteTypeEditable(c.type),
+      });
+    });
+
+    const rowsRaw = SqliteUtil.getFullRows(tableSelected);
+
+    console.log(rowsRaw);
+
+    if (rowsRaw?.values?.length) {
+      const rowsConvert: GridValidRowModel[] = rowsRaw.values.map((row) => {
+        if (typeof row !== "object" || row === null) {
+          return {};
+        }
+
+        let rowConvert: any = {};
+        rowsRaw.lc.forEach((l, i) => {
+          rowConvert[l] = row[i];
+        });
+
+        if (
+          rowConvert &&
+          typeof rowConvert === "object" &&
+          !("id" in rowConvert)
+        ) {
+          rowConvert.id = randomId();
+        }
+
+        return rowConvert as GridValidRowModel;
+      });
+
+      setRows(rowsConvert);
+    }
+
+    setColumns(cols);
+  }, [tableSelected, listTable]);
+
+  const [rows, setRows] = React.useState<GridRowsProp>([]);
   const [rowModesModel, setRowModesModel] = React.useState<GridRowModesModel>(
     {},
   );
@@ -220,13 +214,6 @@ export default function FullFeaturedCrudGrid() {
     return updatedRow;
   };
 
-  const onSortModelChange = function (sortModel: GridSortModel): void {
-    console.log(sortModel);
-  };
-
-  const filterModel: GridFilterModel = JSON.parse(
-    `{"items":[{"field":"bio","operator":"contains","id":33641,"value":"a","fromInput":"_r_1f_"}],"logicOperator":"and","quickFilterValues":[],"quickFilterLogicOperator":"and"}`,
-  );
   return (
     <Box
       sx={{
@@ -249,8 +236,6 @@ export default function FullFeaturedCrudGrid() {
           onRowModesModelChange={setRowModesModel}
           onRowEditStop={handleRowEditStop}
           processRowUpdate={processRowUpdate}
-          filterModel={filterModel}
-          showToolbar={false}
           slotProps={{
             toolbar: { setRows, setRowModesModel },
           }}
@@ -258,4 +243,91 @@ export default function FullFeaturedCrudGrid() {
       </ActionHandlersContext.Provider>
     </Box>
   );
+};
+
+export default FullFeaturedCrudGrid;
+
+function mapSqliteTypeToMuiType(sqliteType?: string | null): GridColType {
+  if (!sqliteType) return "string";
+
+  const type = sqliteType.toUpperCase();
+
+  // number
+  if (
+    type.includes("INT") ||
+    type.includes("REAL") ||
+    type.includes("FLOAT") ||
+    type.includes("DOUBLE") ||
+    type.includes("NUMERIC") ||
+    type.includes("DECIMAL")
+  ) {
+    return "number";
+  }
+
+  // boolean
+  if (type.includes("BOOL")) {
+    return "boolean";
+  }
+
+  // if (type.includes("DATETIME") || type.includes("TIMESTAMP")) {
+  //   return "dateTime";
+  // }
+
+  // if (type === "DATE") {
+  //   return "date";
+  // }
+
+  // long text
+  if (type.includes("CLOB")) {
+    return "longText";
+  }
+
+  // custom / blob / json
+  if (type.includes("BLOB") || type.includes("JSON")) {
+    return "custom";
+  }
+
+  // default string
+  return "string";
+}
+
+function isSqliteTypeEditable(sqliteType?: string | null): boolean {
+  if (!sqliteType) return false;
+
+  const type = sqliteType.toUpperCase();
+
+  // number
+  if (
+    type.includes("INT") ||
+    type.includes("REAL") ||
+    type.includes("FLOAT") ||
+    type.includes("DOUBLE") ||
+    type.includes("NUMERIC") ||
+    type.includes("DECIMAL")
+  ) {
+    return true;
+  }
+
+  // string
+  if (type.includes("TEXT") || type.includes("CHAR") || type.includes("CLOB")) {
+    return true;
+  }
+
+  // if (
+  //   type === "DATE" ||
+  //   type.includes("DATETIME") ||
+  //   type.includes("TIMESTAMP")
+  // ) {
+  //   return true;
+  // }
+
+  return false;
+}
+
+function calcItemWidth(count: number): number {
+  if (!Number.isInteger(count) || count <= 0) {
+    throw new Error("count must be a positive integer");
+  }
+
+  return (window.innerWidth - 280) / count;
 }
