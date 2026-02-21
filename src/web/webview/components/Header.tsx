@@ -10,7 +10,7 @@ const SQLiteHeader: React.FC<HeaderProps> = ({ databaseName }) => {
       <div style={styles.container}>
         {/* Title and Status Section */}
         <div style={styles.topSection}>
-          <h1 style={styles.title}>SQLite IntelliView</h1>
+          <h1 style={styles.title}>SQLite Editor</h1>
 
           <div style={styles.statusBadge}>
             <span style={styles.statusDot}></span>
