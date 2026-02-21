@@ -173,17 +173,27 @@ export class SqliteUtil {
   }
 
   private static buildWhereClauseByEntity(oldEntity: any): string {
-    if (!oldEntity || typeof oldEntity !== "object") {
-      throw new Error("oldEntity must be an object");
-    }
-
-    const keys = Object.keys(oldEntity);
-    if (keys.length === 0) {
-      throw new Error("WHERE condition is empty");
-    }
-
-    return keys
-      .map(key => `"${key}" = ${SqliteUtil.sqlValue(oldEntity[key])}`)
-      .join(" AND ");
+  if (!oldEntity || typeof oldEntity !== "object") {
+    throw new Error("oldEntity must be an object");
   }
+
+  const keys = Object.keys(oldEntity);
+  if (keys.length === 0) {
+    throw new Error("WHERE condition is empty");
+  }
+
+  return keys
+    .map(key => {
+      const value = oldEntity[key];
+
+      // NULL / undefined → IS NULL
+      if (value === null || value === undefined) {
+        return `"${key}" IS NULL`;
+      }
+
+      // còn lại → =
+      return `"${key}" = ${SqliteUtil.sqlValue(value)}`;
+    })
+    .join(" AND ");
+}
 }
