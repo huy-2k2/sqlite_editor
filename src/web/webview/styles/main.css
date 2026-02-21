@@ -43,3 +43,47 @@ button {
   background: #232323;
   border-radius: 8px;
 }
+
+.MuiDataGrid-sortButton {
+  color: #b8b8b8 !important;
+}
+
+.MuiDataGrid-menuIconButton {
+  color: #b8b8b8 !important;
+}
+
+.MuiDataGrid-cell--editing .MuiInputBase-root {
+  color: #b8b8b8 !important;
+}
+
+.MuiTablePagination-toolbar {
+  color: #b8b8b8 !important;
+}
+
+.MuiTablePagination-selectIcon {
+  color: #b8b8b8 !important;
+}
+
+.Mui-disabled.MuiIconButton-root {
+  color: #838181 !important;
+}
+
+.MuiDataGrid-filterIcon {
+  color: #b8b8b8 !important;
+}
+
+.MuiButtonBase-root.MuiIconButton-root.MuiIconButton-sizeMedium {
+  color: #838181 !important;
+}
+
+.MuiInputBase-root.MuiOutlinedInput-root.MuiInputBase-colorPrimary.MuiInputBase-formControl {
+  color: #838181 !important;
+}
+
+.MuiInputAdornment-root.MuiInputAdornment-positionStart.MuiInputAdornment-outlined {
+  color: #838181 !important;
+}
+
+.MuiButtonBase-root.MuiIconButton-root.MuiIconButton-edgeEnd {
+  color: #838181 !important;
+}

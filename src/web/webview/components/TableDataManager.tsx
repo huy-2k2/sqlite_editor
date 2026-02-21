@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import FullFeaturedCrudGrid from "./FullFeaturedCrudGrid";
+
 import {
   GridPaginationModel,
   GridFilterModel,
@@ -49,7 +50,7 @@ const TableDataManager: React.FC<TableDataManagerProps> = ({
 
   return (
     <div>
-      <div style={styles.tablelist}>
+      <div style={styles.tablelist} className="sidebar-scroll">
         {listTable?.map((t) => (
           <div
             key={t.tableName}
@@ -87,6 +88,7 @@ const styles: { [k: string]: React.CSSProperties } = {
     justifyContent: "left",
     alignItems: "center",
     gap: "10px",
+    overflowX: "scroll",
   },
   tableItem: {
     borderRadius: "6px",

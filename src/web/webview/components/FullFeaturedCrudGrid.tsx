@@ -120,6 +120,7 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
 
         return rowConvert as GridValidRowModel;
       });
+      console.log(rowsConvert);
 
       setRows(rowsConvert);
 
@@ -231,18 +232,19 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
   return (
     <Box
       sx={{
-        height: 400,
+        height: window.innerHeight - 150,
         width: "100%",
-        "& .actions": {
-          color: "text.secondary",
-        },
-        "& .textPrimary": {
-          color: "text.primary",
-        },
       }}
     >
       <ActionHandlersContext.Provider value={actionHandlers}>
         <DataGrid
+          sx={{
+            "--DataGrid-t-header-background-base": "#000 !important",
+            "--DataGrid-t-color-foreground-base": "#b8b8b8 !important",
+            "--DataGrid-t-color-border-base": "#303030 !important",
+            "--DataGrid-t-color-background-base": "#232323 !important",
+            "--DataGrid-t-color-background-overlay": "#1e1e1e !important",
+          }}
           rows={rows}
           columns={columns}
           editMode="row"
@@ -257,8 +259,16 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
           onSortModelChange={onSortModelChange}
           onPaginationModelChange={onPaginationModelChange}
           slotProps={{
-            toolbar: { setRows, setRowModesModel },
+            toolbar: {
+              setRows,
+              setRowModesModel,
+              csvOptions: { fileName: tableSelected },
+              printOptions: {
+                disableToolbarButton: true, // This disables the Print button
+              },
+            },
           }}
+          showToolbar={true}
         />
       </ActionHandlersContext.Provider>
     </Box>
