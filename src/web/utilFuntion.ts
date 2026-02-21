@@ -30,7 +30,6 @@ export function createNewPanel(context: vscode.ExtensionContext, panelType: stri
         )
     );
 
-    console.log(webviewJsUri);
 
     currentPanel.webview.html = getBaseWebviewHtml(context, currentPanel.webview);
 

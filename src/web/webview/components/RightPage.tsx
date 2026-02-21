@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import TopNav from "./TopNav";
 import TableSchema from "./TableSchema";
 import TableDataManager, { Table } from "./TableDataManager";
+import Diagram from "./Diagram";
 
-let TOPNAV_ITEMS = ["schema", "data"];
+let TOPNAV_ITEMS = ["schema", "data", "diagram"];
 
 function getPagingSize(): number {
   return 20;
@@ -12,11 +13,13 @@ function getPagingSize(): number {
 interface RightPageProps {
   activeTable: string | undefined;
   onTableSelect: (name: string) => void;
+  databaseName: string;
 }
 
 const RightPage: React.FC<RightPageProps> = ({
   activeTable,
   onTableSelect,
+  databaseName,
 }) => {
   const [activeTopnavItem, setActiveTopnavItem] = useState<string>(
     TOPNAV_ITEMS[0],
@@ -66,6 +69,8 @@ const RightPage: React.FC<RightPageProps> = ({
             setListTableSelected={setListTableSelected}
           ></TableDataManager>
         );
+      case "diagram":
+        return <Diagram databaseName={databaseName}></Diagram>;
     }
   };
 
@@ -76,7 +81,12 @@ const RightPage: React.FC<RightPageProps> = ({
         activeItem={activeTopnavItem}
         onItemSelect={setActiveTopnavItem}
       ></TopNav>
-      <div>{renderByType()}</div>
+      <div
+        className="sidebar-scroll"
+        style={activeTopnavItem == "diagram" ? styles.container_diagram : {}}
+      >
+        {renderByType()}
+      </div>
     </div>
   );
 };
@@ -89,6 +99,12 @@ const styles: { [k: string]: React.CSSProperties } = {
     overflow: "hidden",
     position: "relative",
     backgroundColor: "#232323",
+  },
+
+  container_diagram: {
+    width: "100%",
+    height: "100%",
+    overflow: "auto",
   },
 };
 

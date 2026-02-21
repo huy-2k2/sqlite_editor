@@ -264,8 +264,6 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
       return false;
     });
 
-    console.log(newRow, oldRow);
-
     const updaters = SqliteUtil.updateOneRowByEntireEntity(
       tableSelected,
       tempupdatedRow,

@@ -10,6 +10,8 @@ import RightPage from "./components/RightPage";
 import "./styles/main.css";
 
 import { ToastContainer } from "react-toastify";
+const vscode = window.acquireVsCodeApi();
+
 export default function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [dbName, setDbName] = useState<string>("");
@@ -19,6 +21,11 @@ export default function App() {
   const handleTableSelect = (name: string) => setActiveTable(name);
 
   useEffect(() => {
+    console.log("code web applyed");
+    vscode.postMessage({
+      type: "webview-ready",
+    });
+
     const handler = async (event: MessageEvent) => {
       if (event.data?.type !== "db-loaded") return;
 
@@ -71,6 +78,7 @@ export default function App() {
               <RightPage
                 activeTable={activeTable}
                 onTableSelect={handleTableSelect}
+                databaseName={dbName}
               ></RightPage>
             </div>
           </div>

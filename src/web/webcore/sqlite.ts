@@ -131,14 +131,12 @@ export class SqliteUtil {
 
   private static queryDatabaseWithThrowError(sql: string) {
   try {
-    console.log("run query", sql)
     SqliteUtil.Database.run(sql);
     return {
       success: true,
       error: "",
     };
   } catch (e: any) {
-    console.log(e)
     return {
       success: false,
       error: e?.message ?? String(e),
@@ -178,22 +176,77 @@ export class SqliteUtil {
   }
 
   const keys = Object.keys(oldEntity);
-  if (keys.length === 0) {
-    throw new Error("WHERE condition is empty");
+    if (keys.length === 0) {
+      throw new Error("WHERE condition is empty");
+    }
+
+    return keys
+      .map(key => {
+        const value = oldEntity[key];
+
+        // NULL / undefined → IS NULL
+        if (value === null || value === undefined) {
+          return `"${key}" IS NULL`;
+        }
+
+        // còn lại → =
+        return `"${key}" = ${SqliteUtil.sqlValue(value)}`;
+      })
+      .join(" AND ");
   }
 
-  return keys
-    .map(key => {
-      const value = oldEntity[key];
+  static sqljsDbToMermaidChart(): string {
+    const tableResult = SqliteUtil.Database.exec(`
+      SELECT name
+      FROM sqlite_master
+      WHERE type='table'
+        AND name NOT LIKE 'sqlite_%'
+    `);
 
-      // NULL / undefined → IS NULL
-      if (value === null || value === undefined) {
-        return `"${key}" IS NULL`;
+    const tables: string[] =
+      tableResult[0]?.values.map((v: any[]) => v[0]) ?? [];
+
+    let chart = "erDiagram\n";
+
+    // Tables + columns
+    for (const table of tables) {
+      const cols = SqliteUtil.Database.exec(`PRAGMA table_info("${table}")`)[0]?.values ?? [];
+
+      chart += `  ${table} {\n`;
+
+      for (const c of cols) {
+        const colName = c[1];
+        const rawType = c[2];
+        const type = SqliteUtil.normalizeType(rawType);
+        const isPk = c[5] === 1;
+
+        chart += `    ${type} ${colName}${isPk ? " PK" : ""}\n`;
       }
 
-      // còn lại → =
-      return `"${key}" = ${SqliteUtil.sqlValue(value)}`;
-    })
-    .join(" AND ");
-}
+      chart += `  }\n`;
+    }
+
+    // Foreign keys
+    for (const table of tables) {
+      const fks = SqliteUtil.Database.exec(`PRAGMA foreign_key_list("${table}")`)[0]?.values ?? [];
+
+      for (const fk of fks) {
+        const fromColumn = fk[3];
+        const toTable = fk[2];
+
+        chart += `  ${toTable} ||--o{ ${table} : "${fromColumn}"\n`;
+      }
+    }
+
+    return chart;
+  }
+
+  private static normalizeType(type: string): string {
+    if (!type) return "TEXT";
+
+    return type
+      .toUpperCase()
+      .split(/\s|\(/)[0]   // cắt tại space hoặc (
+      .replace(/[^A-Z0-9_]/g, "");
+  }
 }

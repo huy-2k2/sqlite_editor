@@ -43,23 +43,29 @@ export class SQLiteEditorProvider
     };
 
     // Đọc DB (WEB EXTENSION)
+
     const fileData = await vscode.workspace.fs.readFile(document.uri);
+
 
     const wasmUri = webviewPanel.webview.asWebviewUri(
       vscode.Uri.joinPath(this.context.extensionUri, "dist", "web", "sql-wasm.wasm")
     );
 
-    console.log("wasmurl", wasmUri);
-    setTimeout(() => {
+
+    webviewPanel.webview.onDidReceiveMessage(msg => {
+      if (msg?.type === "webview-ready") {
+
+        const payload = {
+        name: document.uri.path.split("/").pop(),
+        data: Array.from(fileData),
+        wasmUri: wasmUri.toString(),
+      }
 
         webviewPanel.webview.postMessage({
             type: "db-loaded",
-            payload: {
-              name: document.uri.path.split("/").pop(),
-              data: Array.from(fileData),
-              wasmUri: wasmUri.toString(),
-            },
+            payload: payload
         });
+      }
     })
 
     webviewPanel.webview.html = getBaseWebviewHtml(
