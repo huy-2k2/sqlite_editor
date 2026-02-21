@@ -72,6 +72,7 @@
     "react-grid-layout": "^2.2.2",
     "react-pro-sidebar": "^1.1.0",
     "react-spinners": "^0.17.0",
+    "react-toastify": "^11.0.5",
     "sql.js": "^1.14.0"
   }
 }

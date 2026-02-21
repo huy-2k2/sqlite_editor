@@ -4,6 +4,7 @@ import Box from "@mui/material/Box";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Save";
 import CancelIcon from "@mui/icons-material/Close";
+import { toast } from "react-toastify";
 import {
   GridRowsProp,
   GridRowModesModel,
@@ -11,14 +12,20 @@ import {
   DataGrid,
   GridColDef,
   GridEventListener,
+  GridRenderCellParams,
   GridRowId,
+  useGridSelector,
   GridRowModel,
   GridRowEditStopReasons,
   GridFilterModel,
   GridSortModel,
   GridColType,
   GridValidRowModel,
+  useGridApiContext,
+  gridEditRowsStateSelector,
   GridPaginationModel,
+  GridActionsCell,
+  GridActionsCellItem,
 } from "@mui/x-data-grid";
 import {
   randomCreatedDate,
@@ -37,7 +44,7 @@ const randomRole = () => {
 interface FullFeaturedCrudGridProps {
   listTable: Array<Table> | undefined;
   tableSelected: string | undefined;
-  setListTableSelected(tables: Array<Table>): void;
+  setTableRandomId(newId: string): void;
 }
 
 declare module "@mui/x-data-grid" {
@@ -61,10 +68,51 @@ const ActionHandlersContext = React.createContext<ActionHandlers>({
   handleSaveClick: () => {},
 });
 
+function ActionsCell(props: GridRenderCellParams) {
+  const apiRef = useGridApiContext();
+  const rowModesModel = useGridSelector(apiRef, gridEditRowsStateSelector);
+  const isInEditMode = typeof rowModesModel[props.id] !== "undefined";
+
+  const { handleSaveClick, handleCancelClick, handleEditClick } =
+    React.useContext(ActionHandlersContext);
+
+  return (
+    <GridActionsCell {...props}>
+      {isInEditMode ? (
+        <React.Fragment>
+          <GridActionsCellItem
+            icon={<SaveIcon />}
+            label="Save"
+            material={{ sx: { color: "primary.main" } }}
+            onClick={() => handleSaveClick(props.id)}
+          />
+          <GridActionsCellItem
+            icon={<CancelIcon />}
+            label="Cancel"
+            className="textPrimary"
+            onClick={() => handleCancelClick(props.id)}
+            color="inherit"
+          />
+        </React.Fragment>
+      ) : (
+        <React.Fragment>
+          <GridActionsCellItem
+            icon={<EditIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={() => handleEditClick(props.id)}
+            color="inherit"
+          />
+        </React.Fragment>
+      )}
+    </GridActionsCell>
+  );
+}
+
 const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
   listTable,
   tableSelected,
-  setListTableSelected,
+  setTableRandomId,
 }) => {
   const [columns, setColumns] = React.useState<GridColDef[]>([]);
 
@@ -79,6 +127,35 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
   const [filterModel, setFilterModel] = React.useState<
     GridFilterModel | undefined
   >(undefined);
+
+  const initRows = function (): GridValidRowModel[] {
+    const rowsRaw = SqliteUtil.getFullRows(tableSelected!);
+
+    if (rowsRaw?.values?.length) {
+      const rowsConvert: GridValidRowModel[] = rowsRaw.values.map((row) => {
+        if (typeof row !== "object" || row === null) {
+          return {};
+        }
+
+        let rowConvert: any = {};
+        rowsRaw.lc.forEach((l, i) => {
+          rowConvert[l] = row[i];
+        });
+
+        if (rowConvert && typeof rowConvert === "object") {
+          if (!("id" in rowConvert)) {
+            rowConvert.id = randomId();
+          }
+        }
+
+        return rowConvert as GridValidRowModel;
+      });
+
+      return rowsConvert;
+    } else {
+      return [];
+    }
+  };
 
   React.useEffect(() => {
     if (!tableSelected || !listTable?.length) return;
@@ -97,50 +174,35 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
       });
     });
 
-    const rowsRaw = SqliteUtil.getFullRows(tableSelected);
+    cols.push({
+      field: `actions_${randomId()}`,
+      type: "actions",
+      headerName: "Actions",
+      width: 100,
+      cellClassName: "actions",
+      renderCell: (params) => <ActionsCell {...params} />,
+    });
 
-    if (rowsRaw?.values?.length) {
-      const rowsConvert: GridValidRowModel[] = rowsRaw.values.map((row) => {
-        if (typeof row !== "object" || row === null) {
-          return {};
-        }
+    const rowsConvert = initRows();
 
-        let rowConvert: any = {};
-        rowsRaw.lc.forEach((l, i) => {
-          rowConvert[l] = row[i];
+    setRows(rowsConvert);
+
+    listTable.forEach((t, i) => {
+      if (t.tableName != tableSelected) return;
+
+      if (t.filterModel) {
+        setFilterModel(t.filterModel);
+      }
+      if (t.paginationModel) {
+        setTimeout(() => {
+          setPaginationModel(t.paginationModel);
         });
+      }
 
-        if (
-          rowConvert &&
-          typeof rowConvert === "object" &&
-          !("id" in rowConvert)
-        ) {
-          rowConvert.id = randomId();
-        }
-
-        return rowConvert as GridValidRowModel;
-      });
-      console.log(rowsConvert);
-
-      setRows(rowsConvert);
-
-      listTable.forEach((t, i) => {
-        if (t.tableName != tableSelected) return;
-
-        if (t.filterModel) {
-          setFilterModel(t.filterModel);
-        }
-        if (t.paginationModel) {
-          setTimeout(() => {
-            setPaginationModel(t.paginationModel);
-          });
-        }
-
-        if (t.sortModel) {
-          setSortModel(t.sortModel);
-        }
-      });
-    }
+      if (t.sortModel) {
+        setSortModel(t.sortModel);
+      }
+    });
 
     setColumns(cols);
   }, [tableSelected, listTable]);
@@ -191,9 +253,33 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
 
   const processRowUpdate = (newRow: GridRowModel) => {
     const updatedRow = { ...newRow, isNew: false };
-    setRows((prevRows) =>
-      prevRows.map((row) => (row.id === newRow.id ? updatedRow : row)),
+
+    if (!tableSelected) return updatedRow;
+
+    const tempupdatedRow: any = newRow as any;
+
+    const oldRow: any = rows.find((r) => {
+      const tempr: any = r as any;
+      if (tempr.id == tempupdatedRow.id) return true;
+      return false;
+    });
+
+    console.log(newRow, oldRow);
+
+    const updaters = SqliteUtil.updateOneRowByEntireEntity(
+      tableSelected,
+      tempupdatedRow,
+      oldRow,
     );
+
+    setTableRandomId(randomId());
+
+    if (!updaters.isSuccess) {
+      toast.error(updaters.errorMessage);
+    } else {
+      toast.success("Updated successfully");
+    }
+
     return updatedRow;
   };
 
@@ -343,13 +429,13 @@ function isSqliteTypeEditable(sqliteType?: string | null): boolean {
     return true;
   }
 
-  // if (
-  //   type === "DATE" ||
-  //   type.includes("DATETIME") ||
-  //   type.includes("TIMESTAMP")
-  // ) {
-  //   return true;
-  // }
+  if (
+    type === "DATE" ||
+    type.includes("DATETIME") ||
+    type.includes("TIMESTAMP")
+  ) {
+    return true;
+  }
 
   return false;
 }
@@ -359,5 +445,5 @@ function calcItemWidth(count: number): number {
     throw new Error("count must be a positive integer");
   }
 
-  return (window.innerWidth - 280) / count;
+  return (window.innerWidth - 400) / count;
 }

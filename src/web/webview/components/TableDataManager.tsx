@@ -48,6 +48,8 @@ const TableDataManager: React.FC<TableDataManagerProps> = ({
       onTableSelect(newListTable[0].tableName);
   }
 
+  const [tableRandomId, setTableRandomId] = useState<string>("");
+
   return (
     <div>
       <div style={styles.tablelist} className="sidebar-scroll">
@@ -72,10 +74,10 @@ const TableDataManager: React.FC<TableDataManagerProps> = ({
       </div>
       <div>
         <FullFeaturedCrudGrid
-          key={tableSelected}
+          key={`${tableSelected}_${tableRandomId}`}
           tableSelected={tableSelected}
           listTable={listTable}
-          setListTableSelected={setListTableSelected}
+          setTableRandomId={(newid: string) => setTableRandomId(newid)}
         ></FullFeaturedCrudGrid>
       </div>
     </div>

@@ -8,6 +8,8 @@ import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import RightPage from "./components/RightPage";
 import "./styles/main.css";
+
+import { ToastContainer } from "react-toastify";
 export default function App() {
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [dbName, setDbName] = useState<string>("");
@@ -50,6 +52,7 @@ export default function App() {
 
   return (
     <div>
+      <ToastContainer />
       <FullScreenLoading isLoading={isLoading} />
       {!isLoading && (
         <div>
