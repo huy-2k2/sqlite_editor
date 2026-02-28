@@ -3,8 +3,9 @@ import TopNav from "./TopNav";
 import TableSchema from "./TableSchema";
 import TableDataManager, { Table } from "./TableDataManager";
 import Diagram from "./Diagram";
+import Query from "./Query";
 
-let TOPNAV_ITEMS = ["schema", "data", "diagram"];
+let TOPNAV_ITEMS = ["schema", "data", "query", "diagram"];
 
 function getPagingSize(): number {
   return 20;
@@ -71,6 +72,8 @@ const RightPage: React.FC<RightPageProps> = ({
         );
       case "diagram":
         return <Diagram databaseName={databaseName}></Diagram>;
+      case "query":
+        return <Query></Query>;
     }
   };
 
