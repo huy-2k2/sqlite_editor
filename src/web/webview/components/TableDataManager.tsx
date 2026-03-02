@@ -99,6 +99,7 @@ const styles: { [k: string]: React.CSSProperties } = {
     color: "#fff",
     cursor: "pointer",
     position: "relative",
+    whiteSpace: "nowrap"
   },
   tableItemActive: {
     backgroundColor: "#08446c",

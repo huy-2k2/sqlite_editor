@@ -7,9 +7,7 @@ import Query from "./Query";
 
 let TOPNAV_ITEMS = ["schema", "data", "query", "diagram"];
 
-function getPagingSize(): number {
-  return 20;
-}
+
 
 interface RightPageProps {
   activeTable: string | undefined;

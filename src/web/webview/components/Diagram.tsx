@@ -90,7 +90,9 @@ const Diagram: React.FC<DiagramProps> = ({ databaseName }) => {
 };
 
 const styles: { [key: string]: React.CSSProperties } = {
-  container: {},
+  container: {
+    padding: "20px 30px"
+  },
 
   downloadbutton: {
     padding: "6px 12px",
