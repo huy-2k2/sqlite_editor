@@ -76,8 +76,14 @@ const Query: React.FC<QueryProps> = ({}) => {
         </div>
       })}
     </div>
-    <div>
-      <SqlEditor></SqlEditor>
+    <div >
+      <SqlEditor 
+      tables={["users", "orders"]}
+      tableColumns={{
+        users: ["id", "name", "email"],
+        orders: ["id", "user_id", "total"],
+      }}
+      ></SqlEditor>
     </div>
   </div>;
 };
