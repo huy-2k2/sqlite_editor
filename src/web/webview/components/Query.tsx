@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   randomId,
 } from "@mui/x-data-grid-generator";
+import SqlEditor from "./SqliteEditor";
 type QueryInfo = {
   id: string,
   index: number,
@@ -74,6 +75,9 @@ const Query: React.FC<QueryProps> = ({}) => {
             </div>
         </div>
       })}
+    </div>
+    <div>
+      <SqlEditor></SqlEditor>
     </div>
   </div>;
 };
