@@ -349,8 +349,8 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
           onColumnResize={onColumnResize}
           slotProps={{
             toolbar: {
-              setRows,
-              setRowModesModel,
+              // setRows,
+              // setRowModesModel,
               csvOptions: { fileName: tableSelected },
               printOptions: {
                 disableToolbarButton: true, // This disables the Print button

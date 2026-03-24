@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {TableColumns} from "./SqliteEditor";
 import {
   randomId,
 } from "@mui/x-data-grid-generator";
 import SqlEditor from "./SqliteEditor";
+import { SqliteUtil } from "../../webcore/sqlite";
 type QueryInfo = {
   id: string,
   index: number,
@@ -24,6 +26,26 @@ interface QueryProps {}
 const Query: React.FC<QueryProps> = ({}) => {
   const [listQueryInfo, setListQueryInfo] = useState<QueryInfo[]>([initQueryInfo])
   const [idQuerySelected, setIdQuerySelected] = useState<string>(initQueryInfo.id)
+
+  const [tables, setTables] = useState<string[]>([])
+  const [tableColumns, setTableColumns] = useState<TableColumns>({})
+
+  useEffect(() => {
+     console.log("load lai query page")
+     let tableInfos = SqliteUtil.getTableNames();
+    
+        let tableNames = tableInfos.map(t => t.name);
+    
+        let tableSchemas: TableColumns = {};
+        tableNames.forEach((tbn) => {
+          const cls = SqliteUtil.getTableSchema(tbn);
+          tableSchemas[tbn] = cls.map(c => c.name);
+        })
+    
+        setTables(tableNames)
+        setTableColumns(tableSchemas);
+  }, [])
+
 
   function handleAddNewQueryInfo(): void {  
     const newQueryInfo: QueryInfo = {
@@ -77,13 +99,13 @@ const Query: React.FC<QueryProps> = ({}) => {
       })}
     </div>
     <div >
-      <SqlEditor 
-      tables={["users", "orders"]}
-      tableColumns={{
-        users: ["id", "name", "email"],
-        orders: ["id", "user_id", "total"],
-      }}
-      ></SqlEditor>
+      {
+        tables.length > 0 &&
+        <SqlEditor
+        tables={tables}
+        tableColumns={tableColumns} 
+        ></SqlEditor>
+      }
     </div>
   </div>;
 };

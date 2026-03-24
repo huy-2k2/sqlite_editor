@@ -44,7 +44,7 @@ export class SqliteUtil {
     }));
   }
 
-  static getDatabaseNames(): TableInfo[] {
+  static getTableNames(): TableInfo[] {
     let query = `
         SELECT name
         FROM sqlite_master

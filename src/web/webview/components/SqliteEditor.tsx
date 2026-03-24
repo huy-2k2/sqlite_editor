@@ -1,24 +1,39 @@
 import React, { useEffect, useRef, useState } from "react";
 import Editor, { OnMount } from "@monaco-editor/react";
 import * as monaco from "monaco-editor";
+import { SqliteUtil } from "../../webcore/sqlite";
 
-type TableColumns = Record<string, string[]>;
+export type TableColumns = Record<string, string[]>;
 
 interface Props {
-  tables: string[];
-  tableColumns: TableColumns;
+  tables: string[],
+  tableColumns: TableColumns
 }
 
 export default function SqliteEditor({
-  tables,
-  tableColumns,
+tables,
+tableColumns
 }: Props) {
   const monacoRef = useRef<typeof monaco | null>(null);
   const [value, onChange] = useState<string>("")
-  /**
+
+  const providerRef = useRef<monaco.IDisposable | null>(null);
+
+  useEffect(() => {
+    return () => {
+      providerRef.current?.dispose();
+    };
+  }, []);
+
+
+   /**
    * Register SQL autocomplete
    */
   function registerCompletion(monacoInstance: typeof monaco) {
+     // nếu đã register rồi → xoá cái cũ
+    providerRef.current?.dispose();
+
+    providerRef.current =
     monacoInstance.languages.registerCompletionItemProvider("sql", {
       triggerCharacters: [" ", ".", ","],
 
@@ -44,6 +59,9 @@ export default function SqliteEditor({
           startColumn: word.startColumn,
           endColumn: word.endColumn,
         };
+
+
+        let suggestions: monaco.languages.CompletionItem[];
 
         // =========================
         // KEYWORDS
@@ -76,10 +94,22 @@ export default function SqliteEditor({
         ];
 
         // =========================
+        // KEYWORD FALLBACK
+        // =========================
+        suggestions =
+          keywords.map((k) => ({
+            label: k,
+            kind:
+              monacoInstance.languages.CompletionItemKind.Keyword,
+            insertText: k,
+            range,
+          }));
+
+        // =========================
         // TABLE COMPLETION
         // =========================
         if (/\b(FROM|JOIN|INTO|UPDATE)\s+$/i.test(textUntilCursor)) {
-          const suggestions: monaco.languages.CompletionItem[] =
+           suggestions =
             tables.map((t) => ({
               label: t,
               kind:
@@ -89,7 +119,8 @@ export default function SqliteEditor({
               range,
             }));
 
-          return { suggestions };
+
+          
         }
 
         // =========================
@@ -104,7 +135,9 @@ export default function SqliteEditor({
             new Set(Object.values(tableColumns).flat())
           );
 
-          const suggestions: monaco.languages.CompletionItem[] =
+          console.log(allColumns);
+
+           suggestions =
             allColumns.map((col) => ({
               label: col,
               kind:
@@ -114,22 +147,13 @@ export default function SqliteEditor({
               range,
             }));
 
-          return { suggestions };
+          
         }
 
-        // =========================
-        // KEYWORD FALLBACK
-        // =========================
-        const suggestions: monaco.languages.CompletionItem[] =
-          keywords.map((k) => ({
-            label: k,
-            kind:
-              monacoInstance.languages.CompletionItemKind.Keyword,
-            insertText: k,
-            range,
-          }));
+        
+        console.log(suggestions);
 
-        return { suggestions };
+        return {suggestions}
       },
     });
   }

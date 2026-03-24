@@ -42,7 +42,9 @@ export default function App() {
 
       await SqliteUtil.create(wasmUri, bytes);
 
-      setTables(SqliteUtil.getDatabaseNames());
+      let tables = SqliteUtil.getTableNames()
+
+      setTables(tables);
 
       setIsLoading(false);
     };
