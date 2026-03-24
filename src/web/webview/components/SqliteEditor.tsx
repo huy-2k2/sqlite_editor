@@ -7,15 +7,24 @@ export type TableColumns = Record<string, string[]>;
 
 interface Props {
   tables: string[],
-  tableColumns: TableColumns
+  tableColumns: TableColumns,
+  defaultText: string,
+  setDefaultText(newText: string): void;
 }
 
 export default function SqliteEditor({
 tables,
-tableColumns
+tableColumns,
+defaultText,
+setDefaultText
 }: Props) {
   const monacoRef = useRef<typeof monaco | null>(null);
   const [value, onChange] = useState<string>("")
+
+  const handleOnChange = function(value: string): void {
+    onChange(value || "")
+    setDefaultText(value || "")
+  }
 
   const providerRef = useRef<monaco.IDisposable | null>(null);
 
@@ -146,12 +155,7 @@ tableColumns
               detail: "column",
               range,
             }));
-
-          
         }
-
-        
-
         return {suggestions}
       },
     });
@@ -173,14 +177,16 @@ tableColumns
           defaultLanguage="sql"
           theme="vs-dark"
           value={value}
-          onChange={(v) => onChange(v || "")}
+          onChange={(v) => handleOnChange(v || "")}
           onMount={handleMount}
+          defaultValue={defaultText}
           options={{
             fontSize: 14,
             minimap: { enabled: false },
             wordWrap: "on",
             automaticLayout: true,
             scrollBeyondLastLine: false,
+
           }}
         />
     </div>

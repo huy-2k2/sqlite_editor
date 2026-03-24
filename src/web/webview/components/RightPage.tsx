@@ -28,6 +28,8 @@ const RightPage: React.FC<RightPageProps> = ({
 
   const [tableSelected, setTableSelected] = useState<string>();
 
+  const [queryText, SetQueryText] = useState<string>("");
+
   useEffect(() => {
     if (!activeTable) return;
 
@@ -71,7 +73,10 @@ const RightPage: React.FC<RightPageProps> = ({
       case "diagram":
         return <Diagram databaseName={databaseName}></Diagram>;
       case "query":
-        return <Query></Query>;
+        return <Query
+          queryText={queryText}
+          setQueryText={SetQueryText}
+        ></Query>;
     }
   };
 
