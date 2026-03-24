@@ -151,7 +151,6 @@ tableColumns
         }
 
         
-        console.log(suggestions);
 
         return {suggestions}
       },
