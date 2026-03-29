@@ -101,54 +101,66 @@ export class SqliteUtil {
   }
 
   static executeUnKnowSql(sql: string): UnknowQueryResult[] {
-  const outputs: UnknowQueryResult[] = [];
+    const outputs: UnknowQueryResult[] = [];
 
-  const statements = sql
-    .split(";")
-    .map(s => s.trim())
-    .filter(Boolean);
+    const statements = sql
+      .split(";")
+      .map(s => s.trim())
+      .filter(Boolean);
 
-  for (const statement of statements) {
-    try {
-      const upper = statement.trim().toUpperCase();
+    for (const statement of statements) {
+      let stmt;
 
-      const isSelect = /^(SELECT|PRAGMA|WITH)\b/.test(upper);
-      const isDML = /^(INSERT|UPDATE|DELETE|REPLACE)\b/.test(upper);
+      try {
+        const upper = statement.trim().toUpperCase();
+        const isDML = /^(INSERT|UPDATE|DELETE|REPLACE)\b/.test(upper);
 
-      // ========= SELECT =========
-      if (isSelect) {
-        const res = SqliteUtil.Database.exec(statement);
+        stmt = SqliteUtil.Database.prepare(statement);
+
+        const columns = stmt.getColumnNames();
+        const isQuery = columns.length > 0;
+
+        // ========= SELECT =========
+        if (isQuery) {
+          const rows: any[] = [];
+
+          while (stmt.step()) {
+            rows.push(stmt.get());
+          }
+
+          outputs.push({
+            type: "select",
+            columns,
+            rows,
+            statement,
+          });
+        }
+        // ========= CHANGE =========
+        else {
+          stmt.step();
+
+          outputs.push({
+            type: "change",
+            rowsAffected: isDML ? SqliteUtil.Database.getRowsModified() : 0,
+            statement,
+          });
+        }
+
+        stmt.free();
+      } catch (err: any) {
+        stmt?.free();
 
         outputs.push({
-          type: "select",
-          columns: res?.[0]?.columns ?? [],
-          rows: res?.[0]?.values ?? [],
+          type: "error",
+          message: err.message,
           statement,
         });
 
-        continue;
+        break;
       }
-
-      // ========= RUN =========
-      SqliteUtil.Database.run(statement);
-
-      outputs.push({
-        type: "change",
-        rowsAffected: isDML ? SqliteUtil.Database.getRowsModified() : 0,
-        statement,
-      });
-    } catch (err: any) {
-      outputs.push({
-        type: "error",
-        message: err.message,
-        statement,
-      });
-
-      break;
     }
-  }
 
-  return outputs;
+    return outputs;
   }
 
   static updateOneRowByEntireEntity(tableName: string, newentity: any, oldentity: any): SqlUpdateResult {
