@@ -3,6 +3,7 @@
   "displayName": "sqliteeditor",
   "description": "A powerful and lightweight SQLite extension for Visual Studio Code.",
   "version": "0.0.2",
+  "icon": "images/sqlite.png",
   "engines": {
     "vscode": "^1.109.0"
   },
