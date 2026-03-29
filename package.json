@@ -1,8 +1,8 @@
 {
   "name": "sqliteeditor",
   "displayName": "sqliteeditor",
-  "description": "the best SQLite extension in the whole solar system",
-  "version": "0.0.1",
+  "description": "A powerful and lightweight SQLite extension for Visual Studio Code.",
+  "version": "0.0.2",
   "engines": {
     "vscode": "^1.109.0"
   },

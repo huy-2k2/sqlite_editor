@@ -4,10 +4,9 @@ import TableSchema from "./TableSchema";
 import TableDataManager, { Table } from "./TableDataManager";
 import Diagram from "./Diagram";
 import Query from "./Query";
+import { UnknowQueryResult } from "../../webcore/types/UnknowQueryResult";
 
 let TOPNAV_ITEMS = ["schema", "data", "query", "diagram"];
-
-
 
 interface RightPageProps {
   activeTable: string | undefined;
@@ -28,7 +27,8 @@ const RightPage: React.FC<RightPageProps> = ({
 
   const [tableSelected, setTableSelected] = useState<string>();
 
-  const [queryText, SetQueryText] = useState<string>("");
+  const [queryText, setQueryText] = useState<string>("");
+  const [queryResult, setQueryResult] = useState<UnknowQueryResult[]>([]);
 
   useEffect(() => {
     if (!activeTable) return;
@@ -73,10 +73,14 @@ const RightPage: React.FC<RightPageProps> = ({
       case "diagram":
         return <Diagram databaseName={databaseName}></Diagram>;
       case "query":
-        return <Query
-          queryText={queryText}
-          setQueryText={SetQueryText}
-        ></Query>;
+        return (
+          <Query
+            queryResult={queryResult}
+            setQueryResult={setQueryResult}
+            queryText={queryText}
+            setQueryText={setQueryText}
+          ></Query>
+        );
     }
   };
 

@@ -1,5 +1,19 @@
-require: nodejs 24.13.1, npm 11.8.0, window pc
+After:
+✨ Smart autocomplete & formatting enabled.
 
-step 1: npm install
-step 2: npm run watch-web
-step 3: npm run run-in-browser
+---
+
+## 📦 Installation
+
+### From VS Code Marketplace
+
+1. Open **Extensions** (`Ctrl + Shift + X`)
+2. Search for: **<Extension Name>**
+3. Click **Install**
+
+### Manual Installation
+
+```bash
+vsce package
+code --install-extension your-extension.vsix
+```
