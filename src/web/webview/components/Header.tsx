@@ -30,12 +30,13 @@ const SQLiteHeader: React.FC<HeaderProps> = ({ databaseName }) => {
             <span style={styles.statusDot}></span>
             <span style={styles.statusText}>CONNECTED</span>
           </div>
+           <div style={styles.buttonExport} onClick={handleExportDb}>Export Database</div>
         </div>
 
         {/* Database Path Section */}
         <div style={styles.dbwraper}>
           <div style={styles.databasePath}>{databaseName}</div>
-          <button style={styles.buttonExport} onClick={handleExportDb}>Export Database</button>
+         
         </div>
       </div>
     </header>
@@ -49,7 +50,12 @@ const styles: { [key: string]: React.CSSProperties } = {
     borderRadius: "4px",
     color: "#fff",
     cursor: "pointer",
-    fontSize: "12px"
+    position: "absolute",
+    fontSize: "14px",
+    right: "12px",
+    padding: "4px 8px",
+    top: "15px",
+
   },
   dbwraper: {
     display: "flex",
@@ -70,6 +76,7 @@ const styles: { [key: string]: React.CSSProperties } = {
     display: "flex",
     alignItems: "center",
     gap: "16px",
+    position: "relative"
   },
   title: {
     fontSize: "20px",
