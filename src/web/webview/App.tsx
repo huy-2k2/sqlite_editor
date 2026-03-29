@@ -21,7 +21,6 @@ export default function App() {
   const handleTableSelect = (name: string) => setActiveTable(name);
 
   useEffect(() => {
-    console.log("code web applyed");
     vscode.postMessage({
       type: "webview-ready",
     });
@@ -42,7 +41,7 @@ export default function App() {
 
       await SqliteUtil.create(wasmUri, bytes);
 
-      let tables = SqliteUtil.getTableNames()
+      let tables = SqliteUtil.getTableNames();
 
       setTables(tables);
 

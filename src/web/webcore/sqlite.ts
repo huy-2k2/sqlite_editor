@@ -3,6 +3,7 @@ import { TableInfo } from "../webcore/types/TableInfo";
 import { TableColumn, TableColumnInfo } from './types/TableColumn';
 import {TableRaws} from './types/TableRaws'
 import { SqlUpdateResult } from './types/SqlUpdateResult';
+import { UnknowQueryResult } from './types/UnknowQueryResult';
 
 
 export class SqliteUtil {
@@ -79,6 +80,69 @@ export class SqliteUtil {
       values: [],
       lc: []
     }
+  }
+
+  static executeUnKnowSql(sql: string): UnknowQueryResult[] {
+  const outputs: UnknowQueryResult[] = [];
+
+  // split statement đơn giản (đủ dùng cho editor)
+  const statements = sql
+    .split(";")
+    .map(s => s.trim())
+    .filter(Boolean);
+
+  for (const statement of statements) {
+    try {
+      const upper = statement.trim().toUpperCase();
+
+      // ===== SELECT =====
+      if (upper.startsWith("SELECT") || upper.startsWith("PRAGMA")) {
+        const res = SqliteUtil.Database.exec(statement);
+
+        // SELECT nhưng không có row
+        if (!res || res.length === 0) {
+          outputs.push({
+            type: "select",
+            columns: [],
+            rows: [],
+            statement,
+          });
+          continue;
+        }
+
+        outputs.push({
+          type: "select",
+          columns: res[0].columns ?? [],
+          rows: res[0].values ?? [],
+          statement,
+        });
+      }
+
+      // ===== NON SELECT =====
+      else {
+        SqliteUtil.Database.run(statement);
+
+        const rowsAffected = SqliteUtil.Database.getRowsModified();
+
+        outputs.push({
+          type: "change",
+          rowsAffected,
+          statement,
+        });
+      }
+    } catch (err: any) {
+      // ❗ dừng tại statement lỗi gần nhất
+      outputs.push({
+        type: "error",
+        message: err.message,
+        statement,
+      });
+
+      break;
+    }
+  }
+
+  return outputs;
   }
 
   static updateOneRowByEntireEntity(tableName: string, newentity: any, oldentity: any): SqlUpdateResult {

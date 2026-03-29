@@ -313,10 +313,6 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
     });
   };
 
-  const onColumnResize = function (model: any): void {
-    console.log(model);
-  };
-
   return (
     <Box
       sx={{
@@ -346,7 +342,6 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
           onFilterModelChange={onFilterModelChange}
           onSortModelChange={onSortModelChange}
           onPaginationModelChange={onPaginationModelChange}
-          onColumnResize={onColumnResize}
           slotProps={{
             toolbar: {
               // setRows,
