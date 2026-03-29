@@ -129,6 +129,7 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
   >(undefined);
 
   const initRows = function (): GridValidRowModel[] {
+    console.log("da chay den day");
     const rowsRaw = SqliteUtil.getFullRows(tableSelected!);
 
     if (rowsRaw?.values?.length) {
@@ -159,6 +160,10 @@ const FullFeaturedCrudGrid: React.FC<FullFeaturedCrudGridProps> = ({
 
   React.useEffect(() => {
     if (!tableSelected || !listTable?.length) return;
+
+    if (!SqliteUtil.isTableExists(tableSelected)) {
+      return;
+    }
 
     const colsRaw = SqliteUtil.getTableSchema(tableSelected);
 

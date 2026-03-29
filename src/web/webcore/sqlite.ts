@@ -28,6 +28,24 @@ export class SqliteUtil {
   }
 
 
+  static isTableExists(tableName: string): boolean {
+    const stmt = SqliteUtil.Database.prepare(`
+      SELECT name
+      FROM sqlite_master
+      WHERE type='table'
+        AND name = ?
+      LIMIT 1;
+    `);
+
+    stmt.bind([tableName]);
+
+    const exists = stmt.step(); // có row => tồn tại
+
+    stmt.free();
+
+    return exists;
+  }
+
   static getTableSchema(tableName: string): TableColumn[] {
     const res = SqliteUtil.queryDatabase(`PRAGMA table_info(${tableName});`);
 
@@ -85,7 +103,6 @@ export class SqliteUtil {
   static executeUnKnowSql(sql: string): UnknowQueryResult[] {
   const outputs: UnknowQueryResult[] = [];
 
-  // split statement đơn giản (đủ dùng cho editor)
   const statements = sql
     .split(";")
     .map(s => s.trim())
@@ -95,43 +112,32 @@ export class SqliteUtil {
     try {
       const upper = statement.trim().toUpperCase();
 
-      // ===== SELECT =====
-      if (upper.startsWith("SELECT") || upper.startsWith("PRAGMA")) {
-        const res = SqliteUtil.Database.exec(statement);
+      const isSelect = /^(SELECT|PRAGMA|WITH)\b/.test(upper);
+      const isDML = /^(INSERT|UPDATE|DELETE|REPLACE)\b/.test(upper);
 
-        // SELECT nhưng không có row
-        if (!res || res.length === 0) {
-          outputs.push({
-            type: "select",
-            columns: [],
-            rows: [],
-            statement,
-          });
-          continue;
-        }
+      // ========= SELECT =========
+      if (isSelect) {
+        const res = SqliteUtil.Database.exec(statement);
 
         outputs.push({
           type: "select",
-          columns: res[0].columns ?? [],
-          rows: res[0].values ?? [],
+          columns: res?.[0]?.columns ?? [],
+          rows: res?.[0]?.values ?? [],
           statement,
         });
+
+        continue;
       }
 
-      // ===== NON SELECT =====
-      else {
-        SqliteUtil.Database.run(statement);
+      // ========= RUN =========
+      SqliteUtil.Database.run(statement);
 
-        const rowsAffected = SqliteUtil.Database.getRowsModified();
-
-        outputs.push({
-          type: "change",
-          rowsAffected,
-          statement,
-        });
-      }
+      outputs.push({
+        type: "change",
+        rowsAffected: isDML ? SqliteUtil.Database.getRowsModified() : 0,
+        statement,
+      });
     } catch (err: any) {
-      // ❗ dừng tại statement lỗi gần nhất
       outputs.push({
         type: "error",
         message: err.message,

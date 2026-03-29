@@ -58,6 +58,11 @@ export default function App() {
     }
   }, [tables]);
 
+  function handleReloadTables() {
+    let tables = SqliteUtil.getTableNames();
+    setTables(tables);
+  }
+
   return (
     <div>
       <ToastContainer />
@@ -70,6 +75,7 @@ export default function App() {
           <div style={styles.container}>
             <div>
               <Sidebar
+                onReloadTables={handleReloadTables}
                 tables={tables.map((i) => i.name)}
                 activeTable={activeTable}
                 onTableSelect={handleTableSelect}

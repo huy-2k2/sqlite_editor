@@ -4,6 +4,7 @@ interface SidebarProps {
   tables: string[];
   activeTable: string | undefined;
   onTableSelect: (name: string) => void;
+  onReloadTables: () => void;
   dbName?: string;
 }
 
@@ -11,6 +12,7 @@ const Sidebar: React.FC<SidebarProps> = ({
   tables,
   activeTable,
   onTableSelect,
+  onReloadTables,
   dbName,
 }) => (
   <aside style={styles.container}>
@@ -25,7 +27,12 @@ const Sidebar: React.FC<SidebarProps> = ({
           </span>
         </div>
       )}
-      <div style={styles.sectionTitle}>Tables</div>
+      <div style={styles.sectionTitle}>
+        <span>Tables</span>
+        <span onClick={() => onReloadTables()} style={styles.reloadbutton}>
+          reload
+        </span>
+      </div>
       <div style={styles.listWrapper}>
         {tables.map((name) => (
           <div
@@ -109,6 +116,9 @@ const styles: { [k: string]: React.CSSProperties } = {
     fontWeight: 500,
     fontSize: 16,
     margin: "20px 0 8px 24px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   listWrapper: {
     flex: 1,
@@ -129,6 +139,16 @@ const styles: { [k: string]: React.CSSProperties } = {
   activeItem: {
     background: "#08446c",
     color: "#fff",
+  },
+
+  reloadbutton: {
+    fontWeight: 400,
+    fontSize: "14px",
+    backgroundColor: "#22c55e",
+    borderRadius: "2px",
+    padding: "2px 4px",
+    marginRight: "4px",
+    cursor: "pointer",
   },
 };
 
