@@ -1,10 +1,24 @@
 import React from "react";
+import { SqliteUtil } from "../../webcore/sqlite";
 
 interface HeaderProps {
   databaseName: string;
 }
 
 const SQLiteHeader: React.FC<HeaderProps> = ({ databaseName }) => {
+
+  function handleExportDb() {
+    let blobDb = SqliteUtil.exportDatabase();
+    const url = URL.createObjectURL(blobDb);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = databaseName; // tên file export
+    a.click();
+
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <header style={styles.header}>
       <div style={styles.container}>
@@ -19,13 +33,29 @@ const SQLiteHeader: React.FC<HeaderProps> = ({ databaseName }) => {
         </div>
 
         {/* Database Path Section */}
-        <div style={styles.databasePath}>{databaseName}</div>
+        <div style={styles.dbwraper}>
+          <div style={styles.databasePath}>{databaseName}</div>
+          <button style={styles.buttonExport} onClick={handleExportDb}>Export Database</button>
+        </div>
       </div>
     </header>
   );
 };
 
 const styles: { [key: string]: React.CSSProperties } = {
+  buttonExport: {
+    backgroundColor: "#22c55e",
+    border: 'none',
+    borderRadius: "4px",
+    color: "#fff",
+    cursor: "pointer",
+    fontSize: "12px"
+  },
+  dbwraper: {
+    display: "flex",
+    alignItems: "center",
+    columnGap: "20px"
+  },
   header: {
     backgroundColor: "#2b2b2b",
     padding: "8px 24px",

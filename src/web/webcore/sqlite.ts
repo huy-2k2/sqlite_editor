@@ -46,6 +46,18 @@ export class SqliteUtil {
     return exists;
   }
 
+  static exportDatabase(): Blob {
+    // lấy binary database
+    const data = SqliteUtil.Database.export();
+
+    // tạo blob
+    const blob = new Blob([data], {
+      type: "application/octet-stream",
+    });
+
+    return blob;
+  }
+
   static getTableSchema(tableName: string): TableColumn[] {
     const res = SqliteUtil.queryDatabase(`PRAGMA table_info(${tableName});`);
 
