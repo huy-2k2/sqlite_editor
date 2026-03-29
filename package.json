@@ -10,7 +10,7 @@
     "url": "https://github.com/huy-2k2/sqlite_editor"
   },
   "engines": {
-    "vscode": "^1.109.0"
+    "vscode": "^1.85.0"
   },
   "categories": [
     "Other"
@@ -50,7 +50,7 @@
     "@types/mocha": "^10.0.10",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
-    "@types/vscode": "^1.109.0",
+    "@types/vscode": "^1.85.0",
     "@types/webpack-env": "^1.18.8",
     "assert": "^2.1.0",
     "css-loader": "^7.1.3",
