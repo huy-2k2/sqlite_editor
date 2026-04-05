@@ -1,10 +1,6 @@
 import * as vscode from 'vscode';
-import {createNewPanel, getBaseWebviewHtml} from './utilFuntion'
-export function getHelloworldSubcriber(context: vscode.ExtensionContext, ) : vscode.Disposable {
-    return vscode.commands.registerCommand('sqliteeditor.helloworld', () => {
-        createNewPanel(context, 'sqliteeditor', 'Sqlite Editor')
-    })
-}
+import {getBaseWebviewHtml} from './utilFuntion'
+
 
 
 export function getOpenDbfileSubcriber(context: vscode.ExtensionContext): vscode.Disposable {

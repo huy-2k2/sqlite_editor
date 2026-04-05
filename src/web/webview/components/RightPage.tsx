@@ -5,8 +5,9 @@ import TableDataManager, { Table } from "./TableDataManager";
 import Diagram from "./Diagram";
 import Query from "./Query";
 import { UnknowQueryResult } from "../../webcore/types/UnknowQueryResult";
+import QueryBuilder from "./QueryBuilder";
 
-let TOPNAV_ITEMS = ["schema", "data", "query", "diagram"];
+let TOPNAV_ITEMS = ["schema", "data", "query", "query builder", "diagram"];
 
 interface RightPageProps {
   activeTable: string | undefined;
@@ -81,6 +82,8 @@ const RightPage: React.FC<RightPageProps> = ({
             setQueryText={setQueryText}
           ></Query>
         );
+      case "query builder":
+        return <QueryBuilder></QueryBuilder>;
     }
   };
 

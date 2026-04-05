@@ -73,6 +73,7 @@
     "@mui/material": "^7.3.8",
     "@mui/x-data-grid": "^8.27.1",
     "@vscode/test-web": "0.0.79",
+    "@xyflow/react": "^12.10.2",
     "copy-webpack-plugin": "^13.0.1",
     "mermaid": "^11.12.3",
     "monaco-editor": "^0.55.1",
