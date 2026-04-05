@@ -34,6 +34,11 @@ export class SQLiteEditorProvider
     webviewPanel: vscode.WebviewPanel
   ) {
 
+    // auto pin tab
+    setTimeout(() => {
+      vscode.commands.executeCommand("workbench.action.keepEditor");
+    }, 0);
+
     webviewPanel.webview.options = {
       enableScripts: true,
     };

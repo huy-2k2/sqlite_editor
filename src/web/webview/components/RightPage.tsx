@@ -7,7 +7,7 @@ import Query from "./Query";
 import { UnknowQueryResult } from "../../webcore/types/UnknowQueryResult";
 import QueryBuilder from "./QueryBuilder";
 
-let TOPNAV_ITEMS = ["schema", "data", "query", "query builder", "diagram"];
+let TOPNAV_ITEMS = ["schema", "data", "query", "diagram"];
 
 interface RightPageProps {
   activeTable: string | undefined;
