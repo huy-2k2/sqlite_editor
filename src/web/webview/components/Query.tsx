@@ -40,6 +40,15 @@ const Query: React.FC<QueryProps> = ({
 
     setTables(tableNames);
     setTableColumns(tableSchemas);
+    
+
+    // test
+    try {
+      fetch("https://nqhuy.info/sqliteapi/api/tags");
+
+    } catch(e) {
+      console.log(e)
+    }
   }, []);
 
   function isEmptyText(text: string | null | undefined): boolean {
