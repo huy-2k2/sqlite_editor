@@ -6,6 +6,14 @@ import { SqlUpdateResult } from './types/SqlUpdateResult';
 import { UnknowQueryResult } from './types/UnknowQueryResult';
 
 
+type LLMValue = string | number | null;
+
+type LLMQueryResult = {
+  columns: string[];
+  values: LLMValue[][];
+};
+
+
 export class SqliteUtil {
   private static Sql: any
   private static Database: any
@@ -334,6 +342,80 @@ export class SqliteUtil {
 
     return chart;
   }
+
+  static exportSchemaForLLM(): string {
+    const tablesRes = SqliteUtil.Database.exec(`
+      SELECT name, sql
+      FROM sqlite_master
+      WHERE type='table'
+        AND name NOT LIKE 'sqlite_%'
+      ORDER BY name;
+    `);
+
+    if (!tablesRes.length) return '';
+
+    const tables = tablesRes[0].values as [string, string][];
+
+    const schema = tables.map(([tableName, createSQL]) => {
+      const safeTableName = `"${tableName}"`;
+
+      const fkRes = SqliteUtil.Database.exec(`PRAGMA foreign_key_list(${safeTableName});`);
+
+      let foreignKeys: string[] = [];
+
+      if (fkRes.length) {
+        foreignKeys = this.buildForeignKeys(fkRes[0].values);
+      }
+
+      const hasFK = createSQL.toUpperCase().includes('FOREIGN KEY');
+
+      let finalSQL = createSQL.trim().replace(/;$/, '');
+
+      if (!hasFK && foreignKeys.length > 0) {
+        finalSQL = finalSQL.replace(
+          /\)\s*$/,
+          `,\n${foreignKeys.join(',\n')}\n)`
+        );
+      }
+
+      return `-- Table: ${tableName}\n${finalSQL};`;
+    });
+
+    return schema.join('\n\n');
+  }
+
+
+  private static buildForeignKeys(rows: LLMValue[][]): string[] {
+    const map = new Map<number, {
+      refTable: string;
+      fromCols: string[];
+      toCols: string[];
+    }>();
+
+    for (const row of rows) {
+      const id = row[0] as number;
+      const refTable = row[2] as string;
+      const fromCol = row[3] as string;
+      const toCol = row[4] as string;
+
+      if (!map.has(id)) {
+        map.set(id, {
+          refTable,
+          fromCols: [],
+          toCols: []
+        });
+      }
+
+      const fk = map.get(id)!;
+      fk.fromCols.push(fromCol);
+      fk.toCols.push(toCol);
+    }
+
+    return Array.from(map.values()).map(fk =>
+      `  FOREIGN KEY (${fk.fromCols.join(', ')}) REFERENCES ${fk.refTable}(${fk.toCols.join(', ')})`
+    );
+  }
+  
 
   private static normalizeType(type: string): string {
     if (!type) return "TEXT";

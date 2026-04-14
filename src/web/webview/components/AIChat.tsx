@@ -8,6 +8,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
+import { SqliteUtil } from "../../webcore/sqlite";
 
 export interface Message {
   id: string;
@@ -24,6 +25,13 @@ const AIChat: React.FC<AIChatProps> = ({ messages, setMessages }) => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
+
+
+  useEffect(() => {
+   var schema =  SqliteUtil.exportSchemaForLLM();
+
+   console.log(schema)
+  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
