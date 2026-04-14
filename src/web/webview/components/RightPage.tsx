@@ -5,7 +5,7 @@ import TableDataManager, { Table } from "./TableDataManager";
 import Diagram from "./Diagram";
 import Query from "./Query";
 import { UnknowQueryResult } from "../../webcore/types/UnknowQueryResult";
-import AIChat from "./AiChat";
+import AIChat, { Message } from "./AiChat";
 
 const TOPNAV_ITEMS = ["schema", "data", "query", "diagram"]
 
@@ -20,6 +20,9 @@ const RightPage: React.FC<RightPageProps> = ({
   onTableSelect,
   databaseName,
 }) => {
+
+  const [messages, setMessages] = useState<Message[]>([]);
+
 
   const [topNavItems, setTopNavItems] = useState<Array<string>>(TOPNAV_ITEMS)
 
@@ -101,7 +104,7 @@ const RightPage: React.FC<RightPageProps> = ({
           ></Query>
         );
       case "query AI":
-        return <AIChat></AIChat>
+        return <AIChat messages={messages} setMessages={setMessages}></AIChat>
    
     }
   };

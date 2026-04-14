@@ -9,14 +9,18 @@ import {
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 
-interface Message {
+export interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
 }
 
-const AIChat: React.FC = () => {
-  const [messages, setMessages] = useState<Message[]>([]);
+interface AIChatProps {
+  messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+}
+
+const AIChat: React.FC<AIChatProps> = ({ messages, setMessages }) => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -101,13 +105,11 @@ const AIChat: React.FC = () => {
           p: 2,
           display: "flex",
           flexDirection: "column",
-          // remove flex-end to allow full scroll
-          // justifyContent: "flex-end",
           gap: 1.5,
           bgcolor: "#232323",
         }}
       >
-        {/* spacer to push messages to bottom when short */}
+        {/* spacer */}
         <Box sx={{ flexGrow: 1 }} />
 
         {messages.map((msg) => (
