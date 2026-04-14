@@ -5,8 +5,9 @@ import TableDataManager, { Table } from "./TableDataManager";
 import Diagram from "./Diagram";
 import Query from "./Query";
 import { UnknowQueryResult } from "../../webcore/types/UnknowQueryResult";
+import AIChat from "./AiChat";
 
-let TOPNAV_ITEMS = ["schema", "data", "query", "diagram"];
+const TOPNAV_ITEMS = ["schema", "data", "query", "diagram"]
 
 interface RightPageProps {
   activeTable: string | undefined;
@@ -19,8 +20,11 @@ const RightPage: React.FC<RightPageProps> = ({
   onTableSelect,
   databaseName,
 }) => {
+
+  const [topNavItems, setTopNavItems] = useState<Array<string>>(TOPNAV_ITEMS)
+
   const [activeTopnavItem, setActiveTopnavItem] = useState<string>(
-    TOPNAV_ITEMS[0],
+    topNavItems[0],
   );
 
   const [listTableSelected, setListTableSelected] = useState<Array<Table>>([]);
@@ -29,6 +33,21 @@ const RightPage: React.FC<RightPageProps> = ({
 
   const [queryText, setQueryText] = useState<string>("");
   const [queryResult, setQueryResult] = useState<UnknowQueryResult[]>([]);
+
+
+  useEffect( () => {
+    fetch("https://nqhuy.info/sqliteapi/api/tags")
+    .then(response => {
+      if(response.status == 200) {
+
+        setTopNavItems([...TOPNAV_ITEMS, "Query AI"])
+
+        topNavItems.push("query AI")
+      }
+    }).catch(e => {
+      console.log("error contect AI api server", e)
+    })
+  }, [])
 
   useEffect(() => {
     if (!activeTable) return;
@@ -81,6 +100,8 @@ const RightPage: React.FC<RightPageProps> = ({
             setQueryText={setQueryText}
           ></Query>
         );
+      case "query AI":
+        return <AIChat></AIChat>
    
     }
   };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, use } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { TableColumns } from "./SqliteEditor";
 import { randomId } from "@mui/x-data-grid-generator";
 import SqlEditor, { SqliteEditorHandle } from "./SqliteEditor";
@@ -40,15 +40,6 @@ const Query: React.FC<QueryProps> = ({
 
     setTables(tableNames);
     setTableColumns(tableSchemas);
-    
-
-    // test
-    try {
-      fetch("https://nqhuy.info/sqliteapi/api/tags");
-
-    } catch(e) {
-      console.log(e)
-    }
   }, []);
 
   function isEmptyText(text: string | null | undefined): boolean {
