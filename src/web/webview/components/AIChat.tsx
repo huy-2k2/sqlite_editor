@@ -97,7 +97,6 @@ const AIChat: React.FC<AIChatProps> = ({ messages, setMessages }) => {
 
     try {
       const body = buildOllamaBody(scm, userMessage.content);
-      fetch(`${baseAIUrl}api/tags`)
       const res = await fetch(`${baseAIUrl}api/generate`, {
         method: "POST",
         headers: {
@@ -128,7 +127,7 @@ const AIChat: React.FC<AIChatProps> = ({ messages, setMessages }) => {
         {
           id: Date.now().toString() + "_err",
           role: "assistant",
-          content: "API lỗi rồi bro",
+          content: "server error",
         },
       ]);
     } finally {
@@ -217,7 +216,7 @@ const AIChat: React.FC<AIChatProps> = ({ messages, setMessages }) => {
         <TextField
           fullWidth
           size="small"
-          placeholder="Hỏi gì về SQLite cũng được..."
+          placeholder="You can ask anything about SQLite."
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
