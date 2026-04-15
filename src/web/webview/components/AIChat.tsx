@@ -9,6 +9,7 @@ import {
 } from "@mui/material";
 import SendIcon from "@mui/icons-material/Send";
 import { SqliteUtil } from "../../webcore/sqlite";
+import { baseAIUrl, sqliteModel } from "../../webcore/constant";
 
 export interface Message {
   id: string;
@@ -21,16 +22,50 @@ interface AIChatProps {
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
 }
 
+type OllamaRequestBody = {
+  model: string;
+  prompt: string;
+  stream: boolean;
+  temperature?: number;
+};
+
+
+function buildOllamaBody(
+  schema: string,
+  question: string,
+): OllamaRequestBody {
+  return {
+    model: sqliteModel,
+    stream: false,
+    temperature:  0,
+    prompt: `
+      You are an expert in SQLite.
+
+      Given the database schema and a user question, write a valid SQLite query.
+
+      Rules:
+      - Only return the SQL query
+      - Do not explain anything
+      - Do not include markdown
+      - Use only SQLite syntax
+
+      Schema:
+        ${schema}
+
+      Question:
+        ${question}
+    `
+  };
+}
+
 const AIChat: React.FC<AIChatProps> = ({ messages, setMessages }) => {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
-
+  const [schema, setSchema] = useState<string | null>("");
 
   useEffect(() => {
-   var schema =  SqliteUtil.exportSchemaForLLM();
-
-   console.log(schema)
+   
   }, [])
 
   useEffect(() => {
@@ -38,6 +73,16 @@ const AIChat: React.FC<AIChatProps> = ({ messages, setMessages }) => {
   }, [messages]);
 
   const sendMessage = async () => {
+    var scm = schema
+    if(!scm) {
+      scm = SqliteUtil.exportSchemaForLLM();
+      setSchema(scm);
+    }
+
+    if(!scm) {
+      return
+    }
+
     if (!input.trim() || loading) return;
 
     const userMessage: Message = {
@@ -51,18 +96,21 @@ const AIChat: React.FC<AIChatProps> = ({ messages, setMessages }) => {
     setLoading(true);
 
     try {
-      const res = await fetch("https://nqhuy.info/sqliteapi/api", {
+      const body = buildOllamaBody(scm, userMessage.content);
+      fetch(`${baseAIUrl}api/tags`)
+      const res = await fetch(`${baseAIUrl}api/generate`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ question: userMessage.content }),
+        body: JSON.stringify(body),
       });
 
       let text = "";
       try {
         const data = await res.json();
-        text = data?.answer || JSON.stringify(data);
+        console.log(data)
+        text = data?.response || JSON.stringify(data);
       } catch {
         text = await res.text();
       }
@@ -93,7 +141,7 @@ const AIChat: React.FC<AIChatProps> = ({ messages, setMessages }) => {
   };
 
   return (
-    <Box
+      <Box
       sx={{
         height: "calc(100vh - 120px)",
         maxWidth: "calc(100vw - 280px)",

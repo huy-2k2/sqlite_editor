@@ -5,7 +5,8 @@ import TableDataManager, { Table } from "./TableDataManager";
 import Diagram from "./Diagram";
 import Query from "./Query";
 import { UnknowQueryResult } from "../../webcore/types/UnknowQueryResult";
-import AIChat, { Message } from "./AiChat";
+import AIChat, { Message } from "./AIChat";
+import { baseAIUrl } from "../../webcore/constant";
 
 const TOPNAV_ITEMS = ["schema", "data", "query", "diagram"]
 
@@ -39,7 +40,7 @@ const RightPage: React.FC<RightPageProps> = ({
 
 
   useEffect( () => {
-    fetch("https://nqhuy.info/sqliteapi/api/tags")
+    fetch(`${baseAIUrl}api/tags`)
     .then(response => {
       if(response.status == 200) {
 
