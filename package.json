@@ -42,8 +42,7 @@
     "package-web": "npm run pre && webpack --mode production --devtool hidden-source-map",
     "lint": "npm run pre && eslint src",
     "run-in-browser": "vscode-test-web --browserType=chromium --extensionDevelopmentPath=. sample_databases",
-    "pre": "copy customlibrary\\vscode-test-web\\workbench.html node_modules\\@vscode\\test-web\\views\\workbench.html && copy customlibrary\\vscode-test-web\\workbench-esm.html node_modules\\@vscode\\test-web\\views\\workbench-esm.html"
-  },
+    "pre": "cp customlibrary/vscode-test-web/workbench.html node_modules/@vscode/test-web/views/workbench.html && cp customlibrary/vscode-test-web/workbench-esm.html node_modules/@vscode/test-web/views/workbench-esm.html"  },
   "devDependencies": {
     "@mui/x-data-grid-generator": "^8.27.1",
     "@types/assert": "^1.5.11",

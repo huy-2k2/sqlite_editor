@@ -23,38 +23,22 @@ interface AIChatProps {
 }
 
 type OllamaRequestBody = {
-  model: string;
-  prompt: string;
-  stream: boolean;
-  temperature?: number;
+  schema: string,
+  question: string,
+  history: Array<Message>
 };
 
 
 function buildOllamaBody(
   schema: string,
   question: string,
+  message: Array<Message>
 ): OllamaRequestBody {
   return {
-    model: sqliteModel,
-    stream: false,
-    temperature:  0,
-    prompt: `
-      You are an expert in SQLite.
-
-      Given the database schema and a user question, write a valid SQLite query.
-
-      Rules:
-      - Only return the SQL query
-      - Do not explain anything
-      - Do not include markdown
-      - Use only SQLite syntax
-
-      Schema:
-        ${schema}
-
-      Question:
-        ${question}
-    `
+    schema: schema,
+    question: question,
+    history: message
+  
   };
 }
 
@@ -63,10 +47,6 @@ const AIChat: React.FC<AIChatProps> = ({ messages, setMessages }) => {
   const [loading, setLoading] = useState(false);
   const bottomRef = useRef<HTMLDivElement | null>(null);
   const [schema, setSchema] = useState<string | null>("");
-
-  useEffect(() => {
-   
-  }, [])
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -96,7 +76,7 @@ const AIChat: React.FC<AIChatProps> = ({ messages, setMessages }) => {
     setLoading(true);
 
     try {
-      const body = buildOllamaBody(scm, userMessage.content);
+      const body = buildOllamaBody(scm, userMessage.content, messages);
       const res = await fetch(`${baseAIUrl}api/generate`, {
         method: "POST",
         headers: {
