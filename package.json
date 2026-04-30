@@ -2,7 +2,7 @@
   "name": "sqliteeditor",
   "displayName": "sqlite editor by nqhuy",
   "description": "A powerful and lightweight SQLite extension for Visual Studio Code.",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "icon": "images/sqlite.png",
   "publisher": "nguyenquochuy",
   "repository": {
